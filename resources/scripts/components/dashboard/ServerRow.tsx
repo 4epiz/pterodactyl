@@ -5,8 +5,10 @@ import { ServerIcon } from '@heroicons/react/outline';
 import { Server } from '@/api/server/getServer';
 import getServerResourceUsage, { ServerStats } from '@/api/server/getServerResourceUsage';
 import { bytesToString, ip, mbToBytes } from '@/lib/formatters';
-import StatusDot, { StatusTone, toneForPowerState } from '@/components/theme/StatusDot';
+import { StatusTone, toneForPowerState } from '@/components/theme/StatusDot';
+import StatusBadge from '@/components/theme/StatusBadge';
 import Meter from '@/components/theme/Meter';
+import { Metric as MetricName, metricBar } from '@/components/theme/metrics';
 
 type Timer = ReturnType<typeof setInterval>;
 
@@ -15,19 +17,24 @@ const Metric = ({
     value,
     limit,
     ratio,
+    metric,
 }: {
     label: string;
     value: string;
     limit: string;
     ratio: number | null;
+    metric: MetricName;
 }) => (
     <div className={'min-w-0'}>
-        <p className={'text-[11px] font-medium uppercase tracking-[0.06em] text-fg-subtle'}>{label}</p>
+        <p className={'flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.06em] text-fg-subtle'}>
+            <span className={classNames('h-1.5 w-1.5 rounded-full', metricBar[metric])} />
+            {label}
+        </p>
         <p className={'mt-1 truncate text-sm font-medium tabular-nums text-fg'} title={`${value} of ${limit}`}>
             {value}
             <span className={'ml-1 text-xs font-normal text-fg-subtle'}>/ {limit}</span>
         </p>
-        <Meter value={ratio} className={'mt-2'} />
+        <Meter value={ratio} color={metricBar[metric]} className={'mt-2'} />
     </div>
 );
 
@@ -94,14 +101,14 @@ export default ({ server, className }: { server: Server; className?: string }) =
             to={`/server/${server.id}`}
             className={classNames(
                 'group relative flex h-full flex-col rounded-xl bg-surface p-4 no-underline shadow-card transition-all duration-200',
-                'hover:-translate-y-px hover:shadow-pop',
+                'hover:-translate-y-0.5 hover:shadow-pop hover:ring-1 hover:ring-accent/30',
                 className
             )}
         >
             <div className={'flex items-start gap-3'}>
                 <span
                     className={
-                        'flex h-10 w-10 flex-none items-center justify-center rounded-lg bg-surface-3 text-fg-muted ring-1 ring-inset ring-line transition-colors duration-200 group-hover:text-fg'
+                        'flex h-10 w-10 flex-none items-center justify-center rounded-lg bg-accent/10 text-accent-text transition-colors duration-200 group-hover:bg-accent group-hover:text-accent-fg'
                     }
                 >
                     <ServerIcon className={'h-5 w-5'} strokeWidth={1.5} />
@@ -110,32 +117,28 @@ export default ({ server, className }: { server: Server; className?: string }) =
                     <p className={'truncate text-[15px] font-semibold tracking-tight text-fg'}>{server.name}</p>
                     <p className={'mt-0.5 truncate font-mono text-xs text-fg-subtle'}>{address || 'No allocation'}</p>
                 </div>
-                <span
-                    className={
-                        'flex flex-none items-center gap-1.5 rounded-full bg-surface-2 py-1 pl-2 pr-2.5 text-xs font-medium capitalize text-fg-muted ring-1 ring-inset ring-line'
-                    }
-                >
-                    <StatusDot tone={tone} />
-                    {label}
-                </span>
+                <StatusBadge tone={tone} label={label} />
             </div>
             <p className={'mt-3 min-h-[1.25rem] text-sm text-fg-muted line-clamp-1'}>
                 {server.description || <span className={'text-fg-subtle'}>No description</span>}
             </p>
             <div className={'mt-4 grid grid-cols-3 gap-4 border-t border-line pt-4'}>
                 <Metric
+                    metric={'cpu'}
                     label={'CPU'}
                     value={showStats ? `${stats!.cpuUsagePercent.toFixed(1)}%` : '—'}
                     limit={limits.cpu}
                     ratio={showStats ? ratio(stats!.cpuUsagePercent, server.limits.cpu) : null}
                 />
                 <Metric
+                    metric={'memory'}
                     label={'Memory'}
                     value={showStats ? bytesToString(stats!.memoryUsageInBytes) : '—'}
                     limit={limits.memory}
                     ratio={showStats ? ratio(stats!.memoryUsageInBytes, mbToBytes(server.limits.memory)) : null}
                 />
                 <Metric
+                    metric={'disk'}
                     label={'Disk'}
                     value={showStats ? bytesToString(stats!.diskUsageInBytes) : '—'}
                     limit={limits.disk}

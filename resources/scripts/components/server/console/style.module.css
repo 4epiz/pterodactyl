@@ -35,7 +35,16 @@
     }
 
     & > .container {
-        @apply px-3 py-2 min-h-[18rem] flex-1 font-mono text-sm;
+        @apply relative flex-auto font-mono text-sm;
+        /* At least fills the viewport below the page header, and grows with the
+           row when the stats card beside it is taller. The terminal itself is
+           absolutely positioned inside, so the xterm fit addon sizes the rows
+           to this box instead of the box growing with the rows. */
+        min-height: clamp(18rem, calc(100vh - 22rem), 46rem);
+
+        & > .viewport {
+            @apply absolute inset-0 px-3 py-2;
+        }
         background: rgb(var(--term-bg));
 
         & #terminal {

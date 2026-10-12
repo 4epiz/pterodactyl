@@ -11,7 +11,7 @@ export interface Props {
 const light = css<Props>``;
 
 const checkboxStyle = css<Props>`
-    ${tw`bg-surface cursor-pointer appearance-none inline-block align-middle select-none flex-shrink-0 w-4 h-4 text-ink border border-line-strong rounded`};
+    ${tw`bg-surface cursor-pointer appearance-none inline-block align-middle select-none flex-shrink-0 w-4 h-4 text-accent border border-line-strong rounded`};
     color-adjust: exact;
     background-origin: border-box;
     transition: all 75ms linear, box-shadow 25ms linear;
@@ -25,7 +25,7 @@ const checkboxStyle = css<Props>`
 
     &:focus {
         ${tw`outline-none`};
-        box-shadow: 0 0 0 3px rgb(var(--ink) / 0.14);
+        box-shadow: 0 0 0 3px rgb(var(--accent) / 0.2);
     }
 `;
 
@@ -56,8 +56,8 @@ const inputStyle = css<Props>`
     }
 
     &:not(:disabled):not(:read-only):focus {
-        border-color: rgb(var(--ink) / 0.55);
-        box-shadow: 0 0 0 3px rgb(var(--ink) / 0.1);
+        border-color: rgb(var(--accent) / 0.7);
+        box-shadow: 0 0 0 3px rgb(var(--accent) / 0.15);
         ${(props) =>
             props.hasError &&
             css`

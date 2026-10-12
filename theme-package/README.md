@@ -3,6 +3,7 @@
 Graphite is a calm, neutral theme for the Pterodactyl 1.x client area. It includes:
 
 - light and dark themes with a Light / Dark / System switcher (remembered per browser, no flash on load)
+- five accent colours to choose from, plus a colour per resource (CPU, memory, disk, network)
 - a sidebar layout that works on desktop and mobile
 - a redesigned dashboard, console and sign-in pages
 - smooth, restrained motion via Framer Motion
@@ -88,6 +89,14 @@ All colours live in `resources/scripts/assets/tailwind.css` as space-separated R
 | `--fg`, `--fg-muted`, `--fg-subtle` | text, from strongest to quietest |
 | `--ink`, `--ink-fg` | primary buttons and accents, and the text on them |
 | `--term-*` | the console, which stays dark in both themes |
+
+### Accent colours
+
+Users choose an accent (blue, violet, emerald, amber or rose) from the sidebar; it is remembered per browser. The accent colours buttons, switches, focus rings, the active menu item and the brand mark. Each accent is defined near the end of `tailwind.css` as `--accent` (fills), `--accent-fg` (text on fills) and `--accent-text` (accent coloured text and icons), with lighter values for the dark theme. To change the default, edit the `:root, :root[data-accent='blue']` block or add your own `[data-accent='…']` block and list it in `ACCENTS` in `components/theme/ThemeProvider.tsx` and in the inline script in `resources/views/templates/wrapper.blade.php`.
+
+### Resource colours
+
+CPU, memory, disk, network and uptime each have their own colour (`--c-cpu`, `--c-memory`, `--c-disk`, `--c-net-in`, `--c-net-out`, `--c-uptime`), used consistently by the console stats, usage bars and charts. Bars still turn amber above 80% and red above 90% usage.
 
 After editing, rebuild with `yarn build:production`.
 

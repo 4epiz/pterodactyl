@@ -11,24 +11,16 @@ import PowerButtons from '@/components/server/console/PowerButtons';
 import ServerDetailsBlock from '@/components/server/console/ServerDetailsBlock';
 import { Alert } from '@/components/elements/alert';
 import PageHeader from '@/components/theme/PageHeader';
-import StatusDot, { toneForPowerState } from '@/components/theme/StatusDot';
+import { toneForPowerState } from '@/components/theme/StatusDot';
+import StatusBadge from '@/components/theme/StatusBadge';
 import { capitalize } from '@/lib/strings';
 
 export type PowerAction = 'start' | 'stop' | 'restart' | 'kill';
 
-const StatusBadge = () => {
+const ServerStatus = () => {
     const status = ServerContext.useStoreState((state) => state.status.value);
 
-    return (
-        <span
-            className={
-                'inline-flex items-center gap-1.5 rounded-full bg-surface py-1 pl-2 pr-2.5 text-xs font-medium text-fg-muted shadow-card'
-            }
-        >
-            <StatusDot tone={toneForPowerState(status)} />
-            {status ? capitalize(status) : 'Connecting'}
-        </span>
-    );
+    return <StatusBadge tone={toneForPowerState(status)} label={status ? capitalize(status) : 'Connecting'} />;
 };
 
 const ServerConsoleContainer = () => {
@@ -53,7 +45,7 @@ const ServerConsoleContainer = () => {
             <PageHeader
                 title={name}
                 description={description}
-                meta={<StatusBadge />}
+                meta={<ServerStatus />}
                 actions={
                     <Can action={['control.start', 'control.stop', 'control.restart']} matchAny>
                         <PowerButtons className={'flex w-full gap-2 sm:w-auto'} />

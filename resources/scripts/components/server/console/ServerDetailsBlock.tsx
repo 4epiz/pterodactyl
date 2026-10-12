@@ -8,17 +8,50 @@ import classNames from 'classnames';
 import { capitalize } from '@/lib/strings';
 import CopyOnClick from '@/components/elements/CopyOnClick';
 import Meter from '@/components/theme/Meter';
-import { ArrowDownIcon, ArrowUpIcon, ClipboardCopyIcon } from '@heroicons/react/outline';
+import { Metric, metricBar, metricChip } from '@/components/theme/metrics';
+import {
+    ArrowDownIcon,
+    ArrowUpIcon,
+    ChipIcon,
+    ClipboardCopyIcon,
+    ClockIcon,
+    DatabaseIcon,
+    GlobeAltIcon,
+    ServerIcon,
+    TemplateIcon,
+} from '@heroicons/react/outline';
 
 type Stats = Record<'memory' | 'cpu' | 'disk' | 'uptime' | 'rx' | 'tx', number>;
 
-const Row = ({ label, children, meter }: { label: string; children: React.ReactNode; meter?: number | null }) => (
-    <div className={'px-4 py-3'}>
-        <div className={'flex items-baseline justify-between gap-3'}>
+type IconComponent = (props: React.ComponentProps<'svg'>) => JSX.Element;
+
+interface RowProps {
+    label: string;
+    icon: IconComponent;
+    color?: Metric;
+    meter?: number | null;
+    children: React.ReactNode;
+}
+
+const Row = ({ label, icon: Icon, color, meter, children }: RowProps) => (
+    <div className={'flex flex-1 flex-col justify-center px-4 py-3'}>
+        <div className={'flex items-center gap-3'}>
+            <span
+                className={classNames(
+                    'flex h-8 w-8 flex-none items-center justify-center rounded-lg',
+                    color ? metricChip[color] : 'bg-surface-3 text-fg-muted'
+                )}
+            >
+                <Icon className={'h-4 w-4'} strokeWidth={1.8} />
+            </span>
             <span className={'flex-none text-xs text-fg-subtle'}>{label}</span>
-            <span className={'min-w-0 truncate text-right text-sm font-medium tabular-nums text-fg'}>{children}</span>
+            <span className={'ml-auto min-w-0 truncate text-right text-sm font-medium tabular-nums text-fg'}>
+                {children}
+            </span>
         </div>
-        {meter !== undefined && <Meter value={meter} className={'mt-2'} />}
+        {meter !== undefined && (
+            <Meter value={meter} color={color ? metricBar[color] : undefined} className={'mt-2.5'} />
+        )}
     </div>
 );
 
@@ -83,22 +116,40 @@ const ServerDetailsBlock = ({ className }: { className?: string }) => {
     const ratio = (value: number, limit: number) => (offline || !limit ? null : value / limit);
 
     return (
-        <div className={classNames('h-fit divide-y divide-line rounded-xl bg-surface shadow-card', className)}>
+        <div className={classNames('flex flex-col divide-y divide-line rounded-xl bg-surface shadow-card', className)}>
             <CopyOnClick text={allocation}>
-                <div className={'group px-4 py-3'}>
-                    <span className={'flex items-center justify-between text-xs text-fg-subtle'}>
-                        Address
-                        <ClipboardCopyIcon
-                            className={'h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-100'}
-                            strokeWidth={1.8}
-                        />
+                <div className={'group flex flex-1 items-center gap-3 px-4 py-3'}>
+                    <span
+                        className={
+                            'flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-accent/10 text-accent-text'
+                        }
+                    >
+                        <GlobeAltIcon className={'h-4 w-4'} strokeWidth={1.8} />
                     </span>
-                    <span className={'mt-1 block truncate font-mono text-[13px] text-fg'} title={allocation}>
-                        {allocation}
+                    <span className={'min-w-0 flex-1'}>
+                        <span className={'block text-xs text-fg-subtle'}>Address</span>
+                        <span className={'block font-mono text-[13px] leading-snug text-fg [overflow-wrap:anywhere]'}>
+                            {/* Allow wrapping before the port rather than mid-number. */}
+                            {allocation.includes(':') ? (
+                                <>
+                                    {allocation.slice(0, allocation.lastIndexOf(':'))}
+                                    <wbr />
+                                    {allocation.slice(allocation.lastIndexOf(':'))}
+                                </>
+                            ) : (
+                                allocation
+                            )}
+                        </span>
                     </span>
+                    <ClipboardCopyIcon
+                        className={
+                            'h-4 w-4 flex-none text-fg-subtle opacity-0 transition-opacity group-hover:opacity-100'
+                        }
+                        strokeWidth={1.8}
+                    />
                 </div>
             </CopyOnClick>
-            <Row label={'Uptime'}>
+            <Row label={'Uptime'} icon={ClockIcon} color={'uptime'}>
                 {status === null ? (
                     'Offline'
                 ) : stats.uptime > 0 ? (
@@ -107,44 +158,40 @@ const ServerDetailsBlock = ({ className }: { className?: string }) => {
                     capitalize(status)
                 )}
             </Row>
-            <Row label={'CPU'} meter={ratio(stats.cpu, limits.cpu)}>
+            <Row label={'CPU'} icon={ChipIcon} color={'cpu'} meter={ratio(stats.cpu, limits.cpu)}>
                 {offline ? (
                     <span className={'text-fg-subtle'}>Offline</span>
                 ) : (
                     <Limit limit={textLimits.cpu}>{stats.cpu.toFixed(2)}%</Limit>
                 )}
             </Row>
-            <Row label={'Memory'} meter={ratio(stats.memory, mbToBytes(limits.memory))}>
+            <Row
+                label={'Memory'}
+                icon={TemplateIcon}
+                color={'memory'}
+                meter={ratio(stats.memory, mbToBytes(limits.memory))}
+            >
                 {offline ? (
                     <span className={'text-fg-subtle'}>Offline</span>
                 ) : (
                     <Limit limit={textLimits.memory}>{bytesToString(stats.memory)}</Limit>
                 )}
             </Row>
-            <Row label={'Disk'} meter={limits.disk ? stats.disk / mbToBytes(limits.disk) : null}>
+            <Row
+                label={'Disk'}
+                icon={DatabaseIcon}
+                color={'disk'}
+                meter={limits.disk ? stats.disk / mbToBytes(limits.disk) : null}
+            >
                 <Limit limit={textLimits.disk}>{bytesToString(stats.disk)}</Limit>
             </Row>
-            <Row label={'Inbound'}>
-                {offline ? (
-                    <span className={'text-fg-subtle'}>—</span>
-                ) : (
-                    <span className={'inline-flex items-center gap-1'}>
-                        <ArrowDownIcon className={'h-3 w-3 text-fg-subtle'} strokeWidth={2} />
-                        {bytesToString(stats.rx)}
-                    </span>
-                )}
+            <Row label={'Inbound'} icon={ArrowDownIcon} color={'net-in'}>
+                {offline ? <span className={'text-fg-subtle'}>—</span> : bytesToString(stats.rx)}
             </Row>
-            <Row label={'Outbound'}>
-                {offline ? (
-                    <span className={'text-fg-subtle'}>—</span>
-                ) : (
-                    <span className={'inline-flex items-center gap-1'}>
-                        <ArrowUpIcon className={'h-3 w-3 text-fg-subtle'} strokeWidth={2} />
-                        {bytesToString(stats.tx)}
-                    </span>
-                )}
+            <Row label={'Outbound'} icon={ArrowUpIcon} color={'net-out'}>
+                {offline ? <span className={'text-fg-subtle'}>—</span> : bytesToString(stats.tx)}
             </Row>
-            <Row label={'Node'}>
+            <Row label={'Node'} icon={ServerIcon}>
                 <span className={'font-mono text-[13px] font-normal'}>{node}</span>
             </Row>
         </div>

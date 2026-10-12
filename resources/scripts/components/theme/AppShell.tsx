@@ -120,7 +120,18 @@ export default ({ sidebar, crumbs = [], children }: Props) => {
                     </div>
                     <SearchContainer />
                 </header>
-                <main>{children}</main>
+                <main className={'relative'}>
+                    {/* Soft accent glow behind the top of each page. */}
+                    <div
+                        aria-hidden
+                        className={'pointer-events-none absolute inset-x-0 top-0 h-72'}
+                        style={{
+                            background:
+                                'radial-gradient(60% 100% at 50% 0%, rgb(var(--accent) / 0.09), transparent 70%)',
+                        }}
+                    />
+                    <div className={'relative'}>{children}</div>
+                </main>
             </div>
         </div>
     );

@@ -60,7 +60,9 @@ export default () => {
     const TERMINAL_PRELUDE = '\u001b[1m\u001b[33mcontainer@pterodactyl~ \u001b[0m';
     const ref = useRef<HTMLDivElement>(null);
     const terminal = useMemo(() => new Terminal({ ...terminalProps }), []);
-    const fitAddon = new FitAddon();
+    // Must be the same instance across renders: a new FitAddon is not attached to
+    // the terminal, so calling fit() on it does nothing.
+    const fitAddon = useMemo(() => new FitAddon(), []);
     const searchAddon = new SearchAddon();
     const searchBar = new SearchBarAddon({ searchAddon });
     const webLinksAddon = new WebLinksAddon();
@@ -173,6 +175,22 @@ export default () => {
         }, 100)
     );
 
+    // Also refit when the container itself changes size (sidebar, grid changes).
+    useEffect(() => {
+        if (!ref.current || typeof ResizeObserver === 'undefined') return;
+
+        const observer = new ResizeObserver(
+            debounce(() => {
+                if (terminal.element) {
+                    fitAddon.fit();
+                }
+            }, 50)
+        );
+        observer.observe(ref.current);
+
+        return () => observer.disconnect();
+    }, [terminal]);
+
     useEffect(() => {
         const listeners: Record<string, (s: string) => void> = {
             [SocketEvent.STATUS]: handlePowerChangeEvent,
@@ -229,7 +247,7 @@ export default () => {
                 </span>
             </div>
             <div className={classNames(styles.container, styles.overflows_container)}>
-                <div className={'h-full'}>
+                <div className={styles.viewport}>
                     <div id={styles.terminal} ref={ref} />
                 </div>
             </div>

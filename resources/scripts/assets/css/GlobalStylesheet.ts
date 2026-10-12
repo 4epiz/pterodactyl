@@ -72,7 +72,7 @@ export default createGlobalStyle`
     }
 
     :focus-visible {
-        outline: 2px solid rgb(var(--ink) / 0.55);
+        outline: 2px solid rgb(var(--accent) / 0.6);
         outline-offset: 2px;
     }
 

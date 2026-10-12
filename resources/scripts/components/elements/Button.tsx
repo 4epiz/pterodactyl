@@ -15,7 +15,7 @@ const ButtonStyle = styled.button<Omit<Props, 'isLoading'>>`
     ${tw`h-9 px-3.5`};
 
     &:focus-visible {
-        box-shadow: 0 0 0 2px rgb(var(--app)), 0 0 0 4px rgb(var(--ink) / 0.35);
+        box-shadow: 0 0 0 2px rgb(var(--app)), 0 0 0 4px rgb(var(--accent) / 0.45);
     }
 
     &:active:not(:disabled) {
@@ -26,10 +26,10 @@ const ButtonStyle = styled.button<Omit<Props, 'isLoading'>>`
         ((!props.isSecondary && !props.color) || props.color === 'primary') &&
         !props.isSecondary &&
         css`
-            ${tw`bg-ink text-ink-fg shadow-sm`};
+            ${tw`bg-accent text-accent-fg shadow-sm`};
 
             &:hover:not(:disabled) {
-                background: rgb(var(--ink) / 0.88);
+                background: rgb(var(--accent) / 0.88);
             }
         `};
 

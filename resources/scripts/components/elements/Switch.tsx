@@ -12,12 +12,12 @@ const ToggleContainer = styled.div`
         ${tw`hidden`};
 
         &:checked + label {
-            ${tw`bg-ink`};
+            ${tw`bg-accent`};
         }
 
         &:checked + label:before {
             transform: translateX(1rem);
-            background: rgb(var(--ink-fg));
+            background: rgb(var(--accent-fg));
         }
 
         &:disabled + label {

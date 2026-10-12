@@ -10,7 +10,7 @@
     }
 
     &:focus-visible {
-      @apply ring-2 ring-ink/30;
+      @apply ring-2 ring-accent/40;
     }
 
     & svg {
