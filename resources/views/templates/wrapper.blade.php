@@ -1,6 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html data-theme="dark">
     <head>
+        <script>
+            (function () {
+                // Applies the saved light/dark theme before the first paint to avoid a flash.
+                // Keep the storage key in sync with components/theme/ThemeProvider.tsx.
+                var mode = 'system';
+                try { mode = localStorage.getItem('panel:theme') || 'system'; } catch (e) {}
+                if (mode === 'system') {
+                    mode = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+                }
+                document.documentElement.setAttribute('data-theme', mode === 'light' ? 'light' : 'dark');
+            })();
+        </script>
         <title>{{ config('app.name', 'Pterodactyl') }}</title>
 
         @section('meta')
@@ -16,7 +28,7 @@
             <link rel="mask-icon" href="/favicons/safari-pinned-tab.svg" color="#bc6e3c">
             <link rel="shortcut icon" href="/favicons/favicon.ico">
             <meta name="msapplication-config" content="/favicons/browserconfig.xml">
-            <meta name="theme-color" content="#0e4688">
+            <meta name="theme-color" content="#0c0c0d">
         @show
 
         @section('user-data')
@@ -36,7 +48,7 @@
 
         @include('layouts.scripts')
     </head>
-    <body class="{{ $css['body'] ?? 'bg-neutral-50' }}">
+    <body class="{{ $css['body'] ?? 'bg-app' }}">
         @section('content')
             @yield('above-container')
             @yield('container')

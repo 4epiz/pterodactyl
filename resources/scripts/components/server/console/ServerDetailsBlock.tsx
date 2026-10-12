@@ -1,41 +1,31 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-    faClock,
-    faCloudDownloadAlt,
-    faCloudUploadAlt,
-    faHdd,
-    faMemory,
-    faMicrochip,
-    faWifi,
-} from '@fortawesome/free-solid-svg-icons';
 import { bytesToString, ip, mbToBytes } from '@/lib/formatters';
 import { ServerContext } from '@/state/server';
 import { SocketEvent, SocketRequest } from '@/components/server/events';
 import UptimeDuration from '@/components/server/UptimeDuration';
-import StatBlock from '@/components/server/console/StatBlock';
 import useWebsocketEvent from '@/plugins/useWebsocketEvent';
 import classNames from 'classnames';
 import { capitalize } from '@/lib/strings';
+import CopyOnClick from '@/components/elements/CopyOnClick';
+import Meter from '@/components/theme/Meter';
+import { ArrowDownIcon, ArrowUpIcon, ClipboardCopyIcon } from '@heroicons/react/outline';
 
 type Stats = Record<'memory' | 'cpu' | 'disk' | 'uptime' | 'rx' | 'tx', number>;
 
-const getBackgroundColor = (value: number, max: number | null): string | undefined => {
-    const delta = !max ? 0 : value / max;
-
-    if (delta > 0.8) {
-        if (delta > 0.9) {
-            return 'bg-red-500';
-        }
-        return 'bg-yellow-500';
-    }
-
-    return undefined;
-};
+const Row = ({ label, children, meter }: { label: string; children: React.ReactNode; meter?: number | null }) => (
+    <div className={'px-4 py-3'}>
+        <div className={'flex items-baseline justify-between gap-3'}>
+            <span className={'flex-none text-xs text-fg-subtle'}>{label}</span>
+            <span className={'min-w-0 truncate text-right text-sm font-medium tabular-nums text-fg'}>{children}</span>
+        </div>
+        {meter !== undefined && <Meter value={meter} className={'mt-2'} />}
+    </div>
+);
 
 const Limit = ({ limit, children }: { limit: string | null; children: React.ReactNode }) => (
     <>
         {children}
-        <span className={'ml-1 text-gray-300 text-[70%] select-none'}>/ {limit || <>&infin;</>}</span>
+        <span className={'ml-1 text-xs font-normal text-fg-subtle'}>/ {limit || <>&infin;</>}</span>
     </>
 );
 
@@ -46,6 +36,7 @@ const ServerDetailsBlock = ({ className }: { className?: string }) => {
     const connected = ServerContext.useStoreState((state) => state.socket.connected);
     const instance = ServerContext.useStoreState((state) => state.socket.instance);
     const limits = ServerContext.useStoreState((state) => state.server.data!.limits);
+    const node = ServerContext.useStoreState((state) => state.server.data!.node);
 
     const textLimits = useMemo(
         () => ({
@@ -88,16 +79,26 @@ const ServerDetailsBlock = ({ className }: { className?: string }) => {
         });
     });
 
+    const offline = status === 'offline' || status === null;
+    const ratio = (value: number, limit: number) => (offline || !limit ? null : value / limit);
+
     return (
-        <div className={classNames('grid grid-cols-6 gap-2 md:gap-4', className)}>
-            <StatBlock icon={faWifi} title={'Address'} copyOnClick={allocation}>
-                {allocation}
-            </StatBlock>
-            <StatBlock
-                icon={faClock}
-                title={'Uptime'}
-                color={getBackgroundColor(status === 'running' ? 0 : status !== 'offline' ? 9 : 10, 10)}
-            >
+        <div className={classNames('h-fit divide-y divide-line rounded-xl bg-surface shadow-card', className)}>
+            <CopyOnClick text={allocation}>
+                <div className={'group px-4 py-3'}>
+                    <span className={'flex items-center justify-between text-xs text-fg-subtle'}>
+                        Address
+                        <ClipboardCopyIcon
+                            className={'h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-100'}
+                            strokeWidth={1.8}
+                        />
+                    </span>
+                    <span className={'mt-1 block truncate font-mono text-[13px] text-fg'} title={allocation}>
+                        {allocation}
+                    </span>
+                </div>
+            </CopyOnClick>
+            <Row label={'Uptime'}>
                 {status === null ? (
                     'Offline'
                 ) : stats.uptime > 0 ? (
@@ -105,34 +106,47 @@ const ServerDetailsBlock = ({ className }: { className?: string }) => {
                 ) : (
                     capitalize(status)
                 )}
-            </StatBlock>
-            <StatBlock icon={faMicrochip} title={'CPU Load'} color={getBackgroundColor(stats.cpu, limits.cpu)}>
-                {status === 'offline' ? (
-                    <span className={'text-gray-400'}>Offline</span>
+            </Row>
+            <Row label={'CPU'} meter={ratio(stats.cpu, limits.cpu)}>
+                {offline ? (
+                    <span className={'text-fg-subtle'}>Offline</span>
                 ) : (
                     <Limit limit={textLimits.cpu}>{stats.cpu.toFixed(2)}%</Limit>
                 )}
-            </StatBlock>
-            <StatBlock
-                icon={faMemory}
-                title={'Memory'}
-                color={getBackgroundColor(stats.memory / 1024, limits.memory * 1024)}
-            >
-                {status === 'offline' ? (
-                    <span className={'text-gray-400'}>Offline</span>
+            </Row>
+            <Row label={'Memory'} meter={ratio(stats.memory, mbToBytes(limits.memory))}>
+                {offline ? (
+                    <span className={'text-fg-subtle'}>Offline</span>
                 ) : (
                     <Limit limit={textLimits.memory}>{bytesToString(stats.memory)}</Limit>
                 )}
-            </StatBlock>
-            <StatBlock icon={faHdd} title={'Disk'} color={getBackgroundColor(stats.disk / 1024, limits.disk * 1024)}>
+            </Row>
+            <Row label={'Disk'} meter={limits.disk ? stats.disk / mbToBytes(limits.disk) : null}>
                 <Limit limit={textLimits.disk}>{bytesToString(stats.disk)}</Limit>
-            </StatBlock>
-            <StatBlock icon={faCloudDownloadAlt} title={'Network (Inbound)'}>
-                {status === 'offline' ? <span className={'text-gray-400'}>Offline</span> : bytesToString(stats.rx)}
-            </StatBlock>
-            <StatBlock icon={faCloudUploadAlt} title={'Network (Outbound)'}>
-                {status === 'offline' ? <span className={'text-gray-400'}>Offline</span> : bytesToString(stats.tx)}
-            </StatBlock>
+            </Row>
+            <Row label={'Inbound'}>
+                {offline ? (
+                    <span className={'text-fg-subtle'}>—</span>
+                ) : (
+                    <span className={'inline-flex items-center gap-1'}>
+                        <ArrowDownIcon className={'h-3 w-3 text-fg-subtle'} strokeWidth={2} />
+                        {bytesToString(stats.rx)}
+                    </span>
+                )}
+            </Row>
+            <Row label={'Outbound'}>
+                {offline ? (
+                    <span className={'text-fg-subtle'}>—</span>
+                ) : (
+                    <span className={'inline-flex items-center gap-1'}>
+                        <ArrowUpIcon className={'h-3 w-3 text-fg-subtle'} strokeWidth={2} />
+                        {bytesToString(stats.tx)}
+                    </span>
+                )}
+            </Row>
+            <Row label={'Node'}>
+                <span className={'font-mono text-[13px] font-normal'}>{node}</span>
+            </Row>
         </div>
     );
 };

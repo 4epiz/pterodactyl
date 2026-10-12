@@ -15,40 +15,44 @@ import { debounce } from 'debounce';
 import { usePersistedState } from '@/plugins/usePersistedState';
 import { SocketEvent, SocketRequest } from '@/components/server/events';
 import classNames from 'classnames';
-import { ChevronDoubleRightIcon } from '@heroicons/react/solid';
+import { ChevronRightIcon } from '@heroicons/react/solid';
+import { TerminalIcon } from '@heroicons/react/outline';
 
 import 'xterm/css/xterm.css';
 import styles from './style.module.css';
 
+// Muted ANSI palette; the console intentionally stays dark in both themes.
 const theme = {
-    background: th`colors.black`.toString(),
+    background: '#0b0b0c',
+    foreground: '#e4e4e7',
     cursor: 'transparent',
-    black: th`colors.black`.toString(),
-    red: '#E54B4B',
-    green: '#9ECE58',
-    yellow: '#FAED70',
-    blue: '#396FE2',
-    magenta: '#BB80B3',
-    cyan: '#2DDAFD',
-    white: '#d0d0d0',
-    brightBlack: 'rgba(255, 255, 255, 0.2)',
-    brightRed: '#FF5370',
-    brightGreen: '#C3E88D',
-    brightYellow: '#FFCB6B',
-    brightBlue: '#82AAFF',
-    brightMagenta: '#C792EA',
-    brightCyan: '#89DDFF',
-    brightWhite: '#ffffff',
-    selection: '#FAF089',
+    black: '#18181b',
+    red: '#f07178',
+    green: '#a6d189',
+    yellow: '#e5c890',
+    blue: '#8caaee',
+    magenta: '#ca9ee6',
+    cyan: '#81c8be',
+    white: '#c6c6cc',
+    brightBlack: '#5b5b63',
+    brightRed: '#ff8b92',
+    brightGreen: '#bce3a2',
+    brightYellow: '#f2d9a8',
+    brightBlue: '#a6bff5',
+    brightMagenta: '#dcb8f0',
+    brightCyan: '#a0dbd2',
+    brightWhite: '#fafafa',
+    selection: 'rgba(255, 255, 255, 0.16)',
 };
 
 const terminalProps: ITerminalOptions = {
     disableStdin: true,
     cursorStyle: 'underline',
     allowTransparency: true,
-    fontSize: 12,
+    fontSize: 12.5,
+    lineHeight: 1.35,
     fontFamily: th('fontFamily.mono'),
-    rows: 30,
+    rows: 24,
     theme: theme,
 };
 
@@ -140,6 +144,9 @@ export default () => {
             fitAddon.fit();
             searchBar.addNewStyle(zIndex);
 
+            // Re-measure once the web font has loaded so the grid lines up.
+            document.fonts?.ready.then(() => terminal.element && fitAddon.fit());
+
             // Add support for capturing keys
             terminal.attachCustomKeyEventHandler((e: KeyboardEvent) => {
                 if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
@@ -201,9 +208,27 @@ export default () => {
     return (
         <div className={classNames(styles.terminal, 'relative')}>
             <SpinnerOverlay visible={!connected} size={'large'} />
-            <div
-                className={classNames(styles.container, styles.overflows_container, { 'rounded-b': !canSendCommands })}
-            >
+            <div className={styles.header}>
+                <span className={'flex items-center gap-2 font-medium'} style={{ color: 'rgb(var(--term-fg))' }}>
+                    <TerminalIcon className={'h-4 w-4'} strokeWidth={1.6} />
+                    Console
+                </span>
+                <span className={'flex items-center gap-3'}>
+                    <span className={'hidden sm:inline'}>
+                        <kbd className={'font-sans'}>Ctrl F</kbd> to search
+                    </span>
+                    <span className={'flex items-center gap-1.5'}>
+                        <span
+                            className={classNames(
+                                'h-1.5 w-1.5 rounded-full',
+                                connected ? 'bg-emerald-400' : 'bg-zinc-500'
+                            )}
+                        />
+                        {connected ? 'Live' : 'Connecting'}
+                    </span>
+                </span>
+            </div>
+            <div className={classNames(styles.container, styles.overflows_container)}>
                 <div className={'h-full'}>
                     <div id={styles.terminal} ref={ref} />
                 </div>
@@ -213,20 +238,15 @@ export default () => {
                     <input
                         className={classNames('peer', styles.command_input)}
                         type={'text'}
-                        placeholder={'Type a command...'}
+                        placeholder={'Type a command…'}
                         aria-label={'Console command input.'}
                         disabled={!instance || !connected}
                         onKeyDown={handleCommandKeyDown}
                         autoCorrect={'off'}
                         autoCapitalize={'none'}
                     />
-                    <div
-                        className={classNames(
-                            'text-gray-100 peer-focus:text-gray-50 peer-focus:animate-pulse',
-                            styles.command_icon
-                        )}
-                    >
-                        <ChevronDoubleRightIcon className={'w-4 h-4'} />
+                    <div className={classNames('peer-focus:text-zinc-200', styles.command_icon)}>
+                        <ChevronRightIcon className={'w-4 h-4'} />
                     </div>
                 </div>
             )}

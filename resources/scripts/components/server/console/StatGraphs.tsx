@@ -4,12 +4,8 @@ import { SocketEvent } from '@/components/server/events';
 import useWebsocketEvent from '@/plugins/useWebsocketEvent';
 import { Line } from 'react-chartjs-2';
 import { useChart, useChartTickLabel } from '@/components/server/console/chart';
-import { hexToRgba } from '@/lib/helpers';
 import { bytesToString } from '@/lib/formatters';
-import { CloudDownloadIcon, CloudUploadIcon } from '@heroicons/react/solid';
-import { theme } from 'twin.macro';
 import ChartBlock from '@/components/server/console/ChartBlock';
-import Tooltip from '@/components/elements/tooltip/Tooltip';
 
 export default () => {
     const status = ServerContext.useStoreState((state) => state.status.value);
@@ -35,8 +31,6 @@ export default () => {
             return {
                 ...opts,
                 label: !index ? 'Network In' : 'Network Out',
-                borderColor: !index ? theme('colors.cyan.400') : theme('colors.yellow.400'),
-                backgroundColor: hexToRgba(!index ? theme('colors.cyan.700') : theme('colors.yellow.700'), 0.5),
             };
         },
     });
@@ -66,24 +60,39 @@ export default () => {
         previous.current = { tx: values.network.tx_bytes, rx: values.network.rx_bytes };
     });
 
+    const latest = (chart: typeof cpu): number | null => {
+        const value = chart.props.data.datasets[0]?.data.slice(-1)[0];
+        return typeof value === 'number' && value >= 0 ? value : null;
+    };
+    const cpuNow = latest(cpu);
+    const memoryNow = latest(memory);
+    const offline = status === 'offline';
+
     return (
         <>
-            <ChartBlock title={'CPU Load'}>
+            <ChartBlock title={'CPU load'} value={offline || cpuNow === null ? '—' : `${cpuNow.toFixed(1)}%`}>
                 <Line {...cpu.props} />
             </ChartBlock>
-            <ChartBlock title={'Memory'}>
+            <ChartBlock
+                title={'Memory'}
+                value={offline || memoryNow === null ? '—' : bytesToString(memoryNow * 1024 * 1024)}
+            >
                 <Line {...memory.props} />
             </ChartBlock>
             <ChartBlock
                 title={'Network'}
+                value={offline ? '—' : undefined}
                 legend={
                     <>
-                        <Tooltip arrow content={'Inbound'}>
-                            <CloudDownloadIcon className={'mr-2 w-4 h-4 text-yellow-400'} />
-                        </Tooltip>
-                        <Tooltip arrow content={'Outbound'}>
-                            <CloudUploadIcon className={'w-4 h-4 text-cyan-400'} />
-                        </Tooltip>
+                        {/* Dataset 0 carries transmitted (outbound) bytes, dataset 1 received. */}
+                        <span className={'flex items-center gap-1.5'}>
+                            <span className={'h-0.5 w-3 rounded-full bg-fg-subtle'} />
+                            In
+                        </span>
+                        <span className={'flex items-center gap-1.5'}>
+                            <span className={'h-0.5 w-3 rounded-full bg-ink'} />
+                            Out
+                        </span>
                     </>
                 }
             >

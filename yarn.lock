@@ -1641,6 +1641,16 @@
     "@floating-ui/dom" "^0.5.3"
     use-isomorphic-layout-effect "^1.1.1"
 
+"@fontsource-variable/geist-mono@5":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@fontsource-variable/geist-mono/-/geist-mono-5.3.0.tgz#ef4ce98a5d7485a4944ead6f799346dc33eddc63"
+  integrity sha512-vBbuwDEo9AkrqADMXOrlAR3DFcJi4/JxeuU43FoiQERnNwsfXNnvxvReZG02cQKmyk4DZkZdBZX3oTDvy2zBAw==
+
+"@fontsource-variable/geist@5":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@fontsource-variable/geist/-/geist-5.3.0.tgz#59084c5e2ffa77c6e3c63bc06f3af62ba4dbbdc5"
+  integrity sha512-j0m+vLQuG5XAYoHtGCVu0spvlGreR3EzpECUVzkFmI1mTVnAO38l/NEPDCFgZ177JxzYJCLSmTQibIiYPilGrA==
+
 "@fontsource-variable/ibm-plex-sans@^5.2.8":
   version "5.2.8"
   resolved "https://registry.yarnpkg.com/@fontsource-variable/ibm-plex-sans/-/ibm-plex-sans-5.2.8.tgz#8947cca46a35ca91266b88ebcbcac09ff264aabc"

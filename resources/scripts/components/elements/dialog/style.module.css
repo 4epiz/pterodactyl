@@ -3,34 +3,33 @@
 }
 
 .panel {
-    @apply relative bg-gray-600 rounded max-w-xl w-full mx-auto shadow-lg text-left;
-    @apply ring-4 ring-gray-800 ring-opacity-80;
+    @apply relative bg-surface rounded-2xl max-w-lg w-full mx-auto shadow-pop text-left overflow-hidden;
 }
 
 .title {
-    @apply font-header text-xl font-medium mb-2 text-gray-50 pr-4;
+    @apply font-header text-lg font-semibold tracking-tight mb-1 text-fg pr-6;
 }
 
 .close_icon {
-    @apply w-5 h-5 group-hover:rotate-90 transition-transform duration-100;
+    @apply w-4 h-4 transition-transform duration-150 group-hover:rotate-90;
 }
 
 .dialog_icon {
-    @apply flex items-center justify-center w-10 h-10 rounded-full mr-4;
+    @apply flex items-center justify-center w-10 h-10 rounded-xl mr-4 flex-none ring-1 ring-inset;
 
     &.danger {
-        @apply bg-red-500 text-red-50;
+        @apply bg-red-500/10 text-red-500 ring-red-500/20;
     }
 
     &.warning {
-        @apply bg-yellow-600 text-yellow-50;
+        @apply bg-amber-500/10 text-amber-500 ring-amber-500/20;
     }
 
     &.success {
-        @apply bg-green-600 text-green-50;
+        @apply bg-emerald-500/10 text-emerald-500 ring-emerald-500/20;
     }
 
     &.info {
-        @apply bg-primary-500 text-primary-50;
+        @apply bg-surface-3 text-fg ring-line;
     }
 }

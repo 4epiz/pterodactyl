@@ -15,27 +15,23 @@ interface StatBlockProps {
     className?: string;
 }
 
+// Kept for addons that render their own stat blocks; the console page uses
+// ServerDetailsBlock's compact list instead.
 export default ({ title, copyOnClick, icon, color, className, children }: StatBlockProps) => {
     const { fontSize, ref } = useFitText({ minFontSize: 8, maxFontSize: 500 });
 
     return (
         <CopyOnClick text={copyOnClick}>
-            <div className={classNames(styles.stat_block, 'bg-gray-600', className)}>
-                <div className={classNames(styles.status_bar, color || 'bg-gray-700')} />
-                <div className={classNames(styles.icon, color || 'bg-gray-700')}>
-                    <Icon
-                        icon={icon}
-                        className={classNames({
-                            'text-gray-100': !color || color === 'bg-gray-700',
-                            'text-gray-50': color && color !== 'bg-gray-700',
-                        })}
-                    />
+            <div className={classNames(styles.stat_block, className)}>
+                <div className={classNames(styles.status_bar, color || 'bg-transparent')} />
+                <div className={classNames(styles.icon, 'bg-surface-3 text-fg-muted')}>
+                    <Icon icon={icon} />
                 </div>
                 <div className={'flex flex-col justify-center overflow-hidden w-full'}>
-                    <p className={'font-header font-medium leading-tight text-xs md:text-sm text-gray-200'}>{title}</p>
+                    <p className={'leading-tight text-xs text-fg-subtle'}>{title}</p>
                     <div
                         ref={ref}
-                        className={'h-[1.75rem] w-full font-semibold text-gray-50 truncate'}
+                        className={'h-[1.75rem] w-full font-semibold text-fg truncate tabular-nums'}
                         style={{ fontSize }}
                     >
                         {children}

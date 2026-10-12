@@ -22,23 +22,28 @@ const spin = keyframes`
 
 // noinspection CssOverwrittenProperties
 const SpinnerComponent = styled.div<Props>`
-    ${tw`w-8 h-8`};
-    border-width: 3px;
+    ${tw`w-7 h-7`};
+    border-style: solid;
+    border-width: 2px;
     border-radius: 50%;
-    animation: ${spin} 1s cubic-bezier(0.55, 0.25, 0.25, 0.7) infinite;
+    animation: ${spin} 0.7s linear infinite;
 
     ${(props) =>
         props.size === 'small'
             ? tw`w-4 h-4 border-2`
             : props.size === 'large'
             ? css`
-                  ${tw`w-16 h-16`};
-                  border-width: 6px;
+                  ${tw`w-10 h-10`};
+                  border-width: 2.5px;
               `
             : null};
 
-    border-color: ${(props) => (!props.isBlue ? 'rgba(255, 255, 255, 0.2)' : 'hsla(212, 92%, 43%, 0.2)')};
-    border-top-color: ${(props) => (!props.isBlue ? 'rgb(255, 255, 255)' : 'hsl(212, 92%, 43%)')};
+    // Inherits the surrounding text colour so it works on any surface (including
+    // inverted ink buttons) in both themes.
+    border-color: currentColor;
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+    opacity: 0.85;
 `;
 
 const Spinner: Spinner = ({ centered, ...props }) =>

@@ -10,8 +10,26 @@ import StatGraphs from '@/components/server/console/StatGraphs';
 import PowerButtons from '@/components/server/console/PowerButtons';
 import ServerDetailsBlock from '@/components/server/console/ServerDetailsBlock';
 import { Alert } from '@/components/elements/alert';
+import PageHeader from '@/components/theme/PageHeader';
+import StatusDot, { toneForPowerState } from '@/components/theme/StatusDot';
+import { capitalize } from '@/lib/strings';
 
 export type PowerAction = 'start' | 'stop' | 'restart' | 'kill';
+
+const StatusBadge = () => {
+    const status = ServerContext.useStoreState((state) => state.status.value);
+
+    return (
+        <span
+            className={
+                'inline-flex items-center gap-1.5 rounded-full bg-surface py-1 pl-2 pr-2.5 text-xs font-medium text-fg-muted shadow-card'
+            }
+        >
+            <StatusDot tone={toneForPowerState(status)} />
+            {status ? capitalize(status) : 'Connecting'}
+        </span>
+    );
+};
 
 const ServerConsoleContainer = () => {
     const name = ServerContext.useStoreState((state) => state.server.data!.name);
@@ -32,28 +50,25 @@ const ServerConsoleContainer = () => {
                         : 'This server is currently being transferred to another node and all actions are unavailable.'}
                 </Alert>
             )}
-            <div className={'grid grid-cols-4 gap-4 mb-4'}>
-                <div className={'hidden sm:block sm:col-span-2 lg:col-span-3 pr-4'}>
-                    <h1 className={'font-header font-medium text-2xl text-gray-50 leading-relaxed line-clamp-1'}>
-                        {name}
-                    </h1>
-                    <p className={'text-sm line-clamp-2'}>{description}</p>
-                </div>
-                <div className={'col-span-4 sm:col-span-2 lg:col-span-1 self-end'}>
+            <PageHeader
+                title={name}
+                description={description}
+                meta={<StatusBadge />}
+                actions={
                     <Can action={['control.start', 'control.stop', 'control.restart']} matchAny>
-                        <PowerButtons className={'flex sm:justify-end space-x-2'} />
+                        <PowerButtons className={'flex w-full gap-2 sm:w-auto'} />
                     </Can>
-                </div>
-            </div>
-            <div className={'grid grid-cols-4 gap-2 sm:gap-4 mb-4'}>
-                <div className={'flex col-span-4 lg:col-span-3'}>
+                }
+            />
+            <div className={'mb-4 grid grid-cols-1 gap-4 lg:grid-cols-12'}>
+                <div className={'flex min-w-0 lg:col-span-8 xl:col-span-9'}>
                     <Spinner.Suspense>
                         <Console />
                     </Spinner.Suspense>
                 </div>
-                <ServerDetailsBlock className={'col-span-4 lg:col-span-1 order-last lg:order-none'} />
+                <ServerDetailsBlock className={'lg:col-span-4 xl:col-span-3'} />
             </div>
-            <div className={'grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-4'}>
+            <div className={'grid grid-cols-1 gap-4 md:grid-cols-3'}>
                 <Spinner.Suspense>
                     <StatGraphs />
                 </Spinner.Suspense>

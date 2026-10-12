@@ -22,10 +22,10 @@ interface Values {
 }
 
 const ServerResult = styled(Link)`
-    ${tw`flex items-center bg-neutral-900 p-4 rounded border-l-4 border-neutral-900 no-underline transition-all duration-150`};
+    ${tw`flex items-center bg-surface-2 px-4 py-3 rounded-xl border border-line no-underline transition-all duration-150`};
 
     &:hover {
-        ${tw`shadow border-cyan-500`};
+        ${tw`bg-surface-3 border-line-strong`};
     }
 
     &:not(:last-of-type) {
@@ -107,7 +107,7 @@ export default ({ ...props }: Props) => {
                                     onClick={() => props.onDismissed()}
                                 >
                                     <div css={tw`flex-1 mr-4`}>
-                                        <p css={tw`text-sm`}>{server.name}</p>
+                                        <p css={tw`text-sm font-medium text-fg`}>{server.name}</p>
                                         <p css={tw`mt-1 text-xs text-neutral-400`}>
                                             {server.allocations
                                                 .filter((alloc) => alloc.isDefault)
@@ -119,7 +119,9 @@ export default ({ ...props }: Props) => {
                                         </p>
                                     </div>
                                     <div css={tw`flex-none text-right`}>
-                                        <span css={tw`text-xs py-1 px-2 bg-cyan-800 text-cyan-100 rounded`}>
+                                        <span
+                                            css={tw`text-xs py-0.5 px-2 bg-surface text-fg-muted border border-line rounded-full font-mono`}
+                                        >
                                             {server.node}
                                         </span>
                                     </div>
