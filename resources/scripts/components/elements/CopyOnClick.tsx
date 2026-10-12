@@ -49,8 +49,8 @@ const CopyOnClick = ({ text, showInNotification = true, children }: CopyOnClickP
                 <Portal>
                     <Fade in appear timeout={250} key={copied ? 'visible' : 'invisible'}>
                         <div className={'fixed z-50 bottom-0 right-0 m-4'}>
-                            <div className={'rounded-md py-3 px-4 text-gray-200 bg-neutral-600/95 shadow'}>
-                                <p>
+                            <div className={'rounded-xl bg-ink py-2.5 px-4 text-sm text-ink-fg shadow-pop'}>
+                                <p className={'text-ink-fg'}>
                                     {showInNotification
                                         ? `Copied "${String(text)}" to clipboard.`
                                         : 'Copied text to clipboard.'}

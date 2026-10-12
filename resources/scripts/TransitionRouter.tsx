@@ -1,27 +1,23 @@
 import React from 'react';
 import { Route } from 'react-router';
-import { SwitchTransition } from 'react-transition-group';
-import Fade from '@/components/elements/Fade';
-import styled from 'styled-components/macro';
-import tw from 'twin.macro';
+import { motion } from 'framer-motion';
 
-const StyledSwitchTransition = styled(SwitchTransition)`
-    ${tw`relative`};
-
-    & section {
-        ${tw`absolute w-full top-0 left-0`};
-    }
-`;
-
+/**
+ * Animates page content in whenever the route changes. Pages are not animated
+ * out, which keeps navigation feeling immediate.
+ */
 const TransitionRouter: React.FC = ({ children }) => {
     return (
         <Route
             render={({ location }) => (
-                <StyledSwitchTransition>
-                    <Fade timeout={150} key={location.pathname + location.search} in appear unmountOnExit>
-                        <section>{children}</section>
-                    </Fade>
-                </StyledSwitchTransition>
+                <motion.section
+                    key={location.pathname + location.search}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                >
+                    {children}
+                </motion.section>
             )}
         />
     );

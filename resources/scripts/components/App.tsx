@@ -14,6 +14,7 @@ import AuthenticatedRoute from '@/components/elements/AuthenticatedRoute';
 import { ServerContext } from '@/state/server';
 import '@/assets/tailwind.css';
 import Spinner from '@/components/elements/Spinner';
+import { ThemeProvider } from '@/components/theme/ThemeProvider';
 
 const DashboardRouter = lazy(() => import(/* webpackChunkName: "dashboard" */ '@/routers/DashboardRouter'));
 const ServerRouter = lazy(() => import(/* webpackChunkName: "server" */ '@/routers/ServerRouter'));
@@ -57,7 +58,7 @@ const App = () => {
     }
 
     return (
-        <>
+        <ThemeProvider>
             <GlobalStylesheet />
             <StoreProvider store={store}>
                 <ProgressBar />
@@ -88,7 +89,7 @@ const App = () => {
                     </Router>
                 </div>
             </StoreProvider>
-        </>
+        </ThemeProvider>
     );
 };
 

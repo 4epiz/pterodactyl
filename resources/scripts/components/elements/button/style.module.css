@@ -1,19 +1,24 @@
 .button {
-    @apply px-4 py-2 inline-flex items-center justify-center;
-    @apply rounded text-base font-semibold transition-all duration-100;
-    @apply focus:ring-[3px] focus:ring-offset-2 focus:ring-offset-gray-700 focus:ring-opacity-50;
+    @apply px-3.5 h-9 inline-flex items-center justify-center gap-2 whitespace-nowrap select-none;
+    @apply rounded-lg text-sm font-medium transition-all duration-150;
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-app;
+    @apply active:scale-[0.98];
 
     /* Sizing Controls */
     &.small {
-        @apply px-4 py-0 h-8 font-normal text-sm focus:ring-2;
+        @apply px-2.5 h-7 text-xs rounded-md;
     }
 
     &.large {
-        @apply px-5 py-3;
+        @apply px-5 h-11 text-[15px];
     }
 
     &.secondary {
-        @apply text-gray-50 bg-transparent;
+        @apply bg-transparent text-fg shadow-none ring-1 ring-inset ring-line-strong;
+
+        &:hover:not(:disabled) {
+            @apply bg-surface-3;
+        }
 
         &:disabled {
             background: transparent !important;
@@ -21,53 +26,42 @@
     }
 
     &:disabled {
-        @apply cursor-not-allowed;
+        @apply cursor-not-allowed opacity-50 active:scale-100;
     }
 
     &.square {
-        @apply p-0 w-12 h-12;
+        @apply p-0 w-9;
 
         &.small {
-            @apply w-8 h-8;
+            @apply w-7;
         }
     }
 }
 
+/* Ink: near-black in light mode, near-white in dark mode. */
 .primary {
-    @apply bg-blue-600 text-blue-50;
-    @apply hover:bg-blue-500 active:bg-blue-500 focus:ring-blue-400 focus:ring-opacity-75;
-
-    &.secondary {
-        @apply hover:bg-blue-600 active:bg-blue-600;
-    }
-
-    &:disabled {
-        @apply bg-blue-500/75 text-blue-200/75;
-    }
+    @apply bg-ink text-ink-fg shadow-sm;
+    @apply hover:bg-ink/90 focus-visible:ring-ink/40;
 }
 
 .text {
-    @apply bg-gray-500 text-gray-50;
-    @apply hover:bg-gray-400 active:bg-gray-400 focus:ring-gray-300 focus:ring-opacity-50;
-
-    &.secondary {
-        @apply hover:bg-gray-500 active:bg-gray-500;
-    }
+    @apply bg-surface text-fg shadow-sm ring-1 ring-inset ring-line-strong;
+    @apply hover:bg-surface-3 focus-visible:ring-ink/30;
 
     &:disabled {
-        @apply bg-gray-500/75 text-gray-200/75;
+        @apply hover:bg-surface;
     }
 }
 
 .danger {
-    @apply bg-red-600 text-gray-50;
-    @apply hover:bg-red-500 active:bg-red-500 focus:ring-red-400 focus:ring-opacity-75;
+    @apply bg-red-600 text-white shadow-sm;
+    @apply hover:bg-red-500 focus-visible:ring-red-500/50;
 
     &.secondary {
-        @apply hover:bg-red-600 active:bg-red-600;
-    }
+        @apply text-red-500 ring-red-500/40;
 
-    &:disabled {
-        @apply bg-red-600/75 text-red-50/75;
+        &:hover:not(:disabled) {
+            @apply bg-red-500/10;
+        }
     }
 }

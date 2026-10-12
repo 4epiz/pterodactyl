@@ -6,32 +6,38 @@ import Label from '@/components/elements/Label';
 import Input from '@/components/elements/Input';
 
 const ToggleContainer = styled.div`
-    ${tw`relative select-none w-12 leading-normal`};
+    ${tw`relative select-none w-9 leading-normal`};
 
     & > input[type='checkbox'] {
         ${tw`hidden`};
 
         &:checked + label {
-            ${tw`bg-primary-500 border-primary-700 shadow-none`};
+            ${tw`bg-ink`};
         }
 
         &:checked + label:before {
-            right: 0.125rem;
+            transform: translateX(1rem);
+            background: rgb(var(--ink-fg));
+        }
+
+        &:disabled + label {
+            ${tw`opacity-50 cursor-not-allowed`};
         }
     }
 
     & > label {
-        ${tw`mb-0 block overflow-hidden cursor-pointer bg-neutral-400 border border-neutral-700 rounded-full h-6 shadow-inner`};
-        transition: all 75ms linear;
+        ${tw`mb-0 block overflow-hidden cursor-pointer bg-surface-3 rounded-full h-5`};
+        box-shadow: inset 0 0 0 1px rgb(var(--line-strong));
+        transition: background-color 150ms ease;
 
         &::before {
-            ${tw`absolute block bg-white border h-5 w-5 rounded-full`};
+            ${tw`absolute block h-4 w-4 rounded-full`};
+            background: rgb(var(--surface));
+            box-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
             top: 0.125rem;
-            right: calc(50% + 0.125rem);
-            //width: 1.25rem;
-            //height: 1.25rem;
+            left: 0.125rem;
             content: '';
-            transition: all 75ms ease-in;
+            transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), background-color 150ms ease;
         }
     }
 `;
@@ -71,7 +77,7 @@ const Switch = ({ name, label, description, defaultChecked, readOnly, onChange, 
                             {label}
                         </Label>
                     )}
-                    {description && <p css={tw`text-neutral-400 text-sm mt-2`}>{description}</p>}
+                    {description && <p css={tw`text-fg-subtle text-sm mt-1`}>{description}</p>}
                 </div>
             )}
         </div>

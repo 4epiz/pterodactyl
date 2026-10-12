@@ -61,11 +61,8 @@ const LoginCheckpointContainer = () => {
                 </span>
             </div>
             <div css={tw`mt-6 text-center`}>
-                <Link
-                    to={'/auth/login'}
-                    css={tw`text-xs text-neutral-500 tracking-wide uppercase no-underline hover:text-neutral-700`}
-                >
-                    Return to Login
+                <Link to={'/auth/login'} className={'text-sm text-fg-muted no-underline hover:text-fg'}>
+                    Back to sign in
                 </Link>
             </div>
         </LoginFormContainer>

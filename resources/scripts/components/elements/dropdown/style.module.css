@@ -2,19 +2,19 @@
   @apply relative inline-block text-left;
 
   & .button {
-    @apply inline-flex justify-center items-center w-full py-2 text-neutral-100 rounded-md;
-    @apply transition-all duration-100;
+    @apply inline-flex justify-center items-center w-full h-9 text-fg-muted rounded-lg;
+    @apply transition-colors duration-100;
 
     &:hover, &[aria-expanded="true"] {
-      @apply bg-neutral-600 text-white;
+      @apply bg-surface-3 text-fg;
     }
 
-    &:focus, &:focus-within, &:active {
-      @apply ring-2 ring-opacity-50 ring-neutral-300 text-white;
+    &:focus-visible {
+      @apply ring-2 ring-ink/30;
     }
 
     & svg {
-      @apply w-5 h-5 transition-transform duration-75;
+      @apply w-4 h-4 transition-transform duration-150;
     }
 
     &[aria-expanded="true"] svg[data-animated="true"] {
@@ -23,36 +23,38 @@
   }
 
   & .items_container {
-    @apply absolute right-0 mt-2 origin-top-right bg-neutral-900 rounded z-10;
+    @apply absolute right-0 mt-1.5 origin-top-right bg-surface rounded-xl shadow-pop z-20;
   }
 }
 
 .menu_item {
-  @apply flex items-center rounded w-full px-2 py-2;
+  @apply flex items-center rounded-lg w-full px-2.5 py-2 text-sm text-fg no-underline;
 
   & svg {
-    @apply w-4 h-4 mr-4 text-neutral-300;
+    @apply w-4 h-4 mr-3 text-fg-subtle;
   }
 
   &:hover, &:focus {
-    @apply bg-blue-500 text-blue-50;
+    @apply bg-surface-3;
 
     & svg {
-      @apply text-blue-50;
+      @apply text-fg;
     }
   }
 
   &.danger {
-    &:hover, &:focus {
-      @apply bg-red-500 text-red-50;
+    @apply text-red-500;
 
-      & svg {
-        @apply text-red-50;
-      }
+    & svg {
+      @apply text-red-500;
+    }
+
+    &:hover, &:focus {
+      @apply bg-red-500/10;
     }
   }
 
   &.disabled {
-    @apply cursor-not-allowed hover:bg-neutral-800 opacity-30 focus:bg-transparent focus:hover:bg-neutral-800;
+    @apply cursor-not-allowed opacity-40 hover:bg-transparent focus:bg-transparent;
   }
 }

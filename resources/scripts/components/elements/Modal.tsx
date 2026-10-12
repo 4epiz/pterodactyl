@@ -22,7 +22,8 @@ export interface ModalProps extends RequiredModalProps {
 
 export const ModalMask = styled.div`
     ${tw`fixed z-50 overflow-auto flex w-full inset-0`};
-    background: rgba(0, 0, 0, 0.7);
+    background: rgb(0 0 0 / 0.45);
+    backdrop-filter: blur(2px);
 `;
 
 const ModalContainer = styled.div<{ alignTop?: boolean }>`
@@ -42,15 +43,15 @@ const ModalContainer = styled.div<{ alignTop?: boolean }>`
     margin-bottom: auto;
 
     & > .close-icon {
-        ${tw`absolute right-0 p-2 text-white cursor-pointer opacity-50 transition-all duration-150 ease-linear hover:opacity-100`};
-        top: -2.5rem;
+        ${tw`absolute right-0 p-1.5 m-3 rounded-lg text-fg-subtle cursor-pointer transition-all duration-150 ease-linear z-10`};
+        top: 0;
 
         &:hover {
-            ${tw`transform rotate-90`}
+            ${tw`text-fg bg-surface-3`};
         }
 
         & > svg {
-            ${tw`w-6 h-6`};
+            ${tw`w-4 h-4`};
         }
     }
 `;
@@ -123,17 +124,13 @@ const Modal: React.FC<ModalProps> = ({
                         <Fade timeout={150} appear in>
                             <div
                                 css={tw`absolute w-full h-full rounded flex items-center justify-center`}
-                                style={{ background: 'hsla(211, 10%, 53%, 0.35)', zIndex: 9999 }}
+                                style={{ background: 'rgb(var(--surface) / 0.7)', zIndex: 9999 }}
                             >
                                 <Spinner />
                             </div>
                         </Fade>
                     )}
-                    <div
-                        css={tw`bg-neutral-800 p-3 sm:p-4 md:p-6 rounded shadow-md overflow-y-scroll transition-all duration-150`}
-                    >
-                        {children}
-                    </div>
+                    <div className={'overflow-y-auto rounded-2xl bg-surface p-4 shadow-pop sm:p-6'}>{children}</div>
                 </ModalContainer>
             </ModalMask>
         </Fade>

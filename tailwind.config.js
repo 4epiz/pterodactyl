@@ -1,44 +1,71 @@
 const colors = require('tailwindcss/colors');
 
-const gray = {
-    50: 'hsl(216, 33%, 97%)',
-    100: 'hsl(214, 15%, 91%)',
-    200: 'hsl(210, 16%, 82%)',
-    300: 'hsl(211, 13%, 65%)',
-    400: 'hsl(211, 10%, 53%)',
-    500: 'hsl(211, 12%, 43%)',
-    600: 'hsl(209, 14%, 37%)',
-    700: 'hsl(209, 18%, 30%)',
-    800: 'hsl(209, 20%, 25%)',
-    900: 'hsl(210, 24%, 16%)',
+// Theme colours are CSS variables (space separated RGB channels) defined in
+// resources/scripts/assets/tailwind.css for both the light and dark themes. The
+// function form keeps opacity modifiers working in both Tailwind 3 and the
+// Tailwind 2 copy bundled with twin.macro.
+const v = (name) => ({ opacityVariable, opacityValue }) => {
+    if (opacityValue !== undefined) {
+        return `rgb(var(--${name}) / ${opacityValue})`;
+    }
+    if (opacityVariable !== undefined) {
+        return `rgb(var(--${name}) / var(${opacityVariable}, 1))`;
+    }
+    return `rgb(var(--${name}))`;
 };
 
+const scale = (name) =>
+    [50, 100, 200, 300, 400, 500, 600, 700, 800, 900].reduce(
+        (acc, step) => ({ ...acc, [step]: v(`${name}-${step}`) }),
+        {}
+    );
+
+const gray = scale('gray');
+
 module.exports = {
+    // "dark:" utilities follow the theme switcher rather than the OS setting.
+    darkMode: ['selector', '[data-theme="dark"]'],
     content: [
         './resources/scripts/**/*.{js,ts,tsx}',
     ],
     theme: {
         extend: {
             fontFamily: {
-                header: ['"IBM Plex Sans"', '"Roboto"', 'system-ui', 'sans-serif'],
+                sans: ['"Geist Variable"', 'system-ui', '-apple-system', '"Segoe UI"', 'sans-serif'],
+                header: ['"Geist Variable"', 'system-ui', 'sans-serif'],
+                mono: ['"Geist Mono Variable"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
             },
             colors: {
-                black: '#131a20',
-                // "primary" and "neutral" are deprecated, prefer the use of "blue" and "gray"
-                // in new code.
-                primary: colors.blue,
+                black: v('black'),
+                // "primary" is the ink colour: near black in the light theme and near
+                // white in the dark theme.
+                primary: scale('primary'),
                 gray: gray,
                 neutral: gray,
                 cyan: colors.cyan,
+                // Semantic tokens used by the theme components.
+                app: v('app'),
+                surface: { DEFAULT: v('surface'), 2: v('surface-2'), 3: v('surface-3') },
+                line: { DEFAULT: v('line'), strong: v('line-strong') },
+                fg: { DEFAULT: v('fg'), muted: v('fg-muted'), subtle: v('fg-subtle') },
+                ink: { DEFAULT: v('ink'), fg: v('ink-fg') },
             },
             fontSize: {
                 '2xs': '0.625rem',
+            },
+            borderRadius: {
+                xl: '0.875rem',
+                '2xl': '1.125rem',
+            },
+            boxShadow: {
+                card: '0 1px 2px rgb(var(--shadow) / 0.06), 0 0 0 1px rgb(var(--line) / 1)',
+                pop: '0 12px 32px -8px rgb(var(--shadow) / 0.22), 0 0 0 1px rgb(var(--line) / 1)',
             },
             transitionDuration: {
                 250: '250ms',
             },
             borderColor: theme => ({
-                default: theme('colors.neutral.400', 'currentColor'),
+                default: theme('colors.line.DEFAULT', 'currentColor'),
             }),
         },
     },

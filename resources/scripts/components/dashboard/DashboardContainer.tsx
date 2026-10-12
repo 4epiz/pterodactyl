@@ -7,8 +7,9 @@ import PageContentBlock from '@/components/elements/PageContentBlock';
 import useFlash from '@/plugins/useFlash';
 import { useStoreState } from 'easy-peasy';
 import { usePersistedState } from '@/plugins/usePersistedState';
-import Switch from '@/components/elements/Switch';
-import tw from 'twin.macro';
+import { motion } from 'framer-motion';
+import PageHeader from '@/components/theme/PageHeader';
+import Segmented from '@/components/theme/Segmented';
 import useSWR from 'swr';
 import { PaginatedResult } from '@/api/http';
 import Pagination from '@/components/elements/Pagination';
@@ -54,33 +55,58 @@ export default () => {
 
     return (
         <PageContentBlock title={'Dashboard'} showFlashKey={'dashboard'}>
-            {rootAdmin && (
-                <div css={tw`mb-2 flex justify-end items-center`}>
-                    <p css={tw`uppercase text-xs text-neutral-400 mr-2`}>
-                        {showOnlyAdmin ? "Showing others' servers" : 'Showing your servers'}
-                    </p>
-                    <Switch
-                        name={'show_all_servers'}
-                        defaultChecked={showOnlyAdmin}
-                        onChange={() => setShowOnlyAdmin((s) => !s)}
-                    />
-                </div>
-            )}
+            <PageHeader
+                title={'Servers'}
+                description={
+                    servers
+                        ? `${servers.pagination.total} ${servers.pagination.total === 1 ? 'server' : 'servers'}${
+                              showOnlyAdmin && rootAdmin ? ' owned by other users' : ' on your account'
+                          }`
+                        : 'Loading your servers…'
+                }
+                actions={
+                    rootAdmin && (
+                        <Segmented
+                            id={'server-scope'}
+                            value={showOnlyAdmin ? 'others' : 'mine'}
+                            onChange={(value) => setShowOnlyAdmin(value === 'others')}
+                            options={[
+                                { value: 'mine', label: 'My servers' },
+                                { value: 'others', label: 'Other servers' },
+                            ]}
+                        />
+                    )
+                }
+            />
             {!servers ? (
                 <Spinner centered size={'large'} />
             ) : (
                 <Pagination data={servers} onPageSelect={setPage}>
                     {({ items }) =>
                         items.length > 0 ? (
-                            items.map((server, index) => (
-                                <ServerRow key={server.uuid} server={server} css={index > 0 ? tw`mt-2` : undefined} />
-                            ))
+                            <div className={'grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-3'}>
+                                {items.map((server, index) => (
+                                    <motion.div
+                                        key={server.uuid}
+                                        initial={{ opacity: 0, y: 8 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.35, delay: index * 0.04, ease: [0.22, 1, 0.36, 1] }}
+                                    >
+                                        <ServerRow server={server} />
+                                    </motion.div>
+                                ))}
+                            </div>
                         ) : (
-                            <p css={tw`text-center text-sm text-neutral-400`}>
-                                {showOnlyAdmin
-                                    ? 'There are no other servers to display.'
-                                    : 'There are no servers associated with your account.'}
-                            </p>
+                            <div
+                                className={'rounded-xl border border-dashed border-line-strong px-6 py-16 text-center'}
+                            >
+                                <p className={'text-sm font-medium text-fg'}>No servers yet</p>
+                                <p className={'mt-1 text-sm text-fg-subtle'}>
+                                    {showOnlyAdmin
+                                        ? 'There are no other servers to display.'
+                                        : 'There are no servers associated with your account.'}
+                                </p>
+                            </div>
                         )
                     }
                 </Pagination>

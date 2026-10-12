@@ -3,11 +3,15 @@ import { breakpoint } from '@/theme';
 import tw from 'twin.macro';
 
 const ContentContainer = styled.div`
-    max-width: 1200px;
-    ${tw`mx-4`};
+    max-width: 1180px;
+    ${tw`mx-auto px-4`};
 
-    ${breakpoint('xl')`
-        ${tw`mx-auto`};
+    ${breakpoint('sm')`
+        ${tw`px-6`};
+    `};
+
+    ${breakpoint('lg')`
+        ${tw`px-8`};
     `};
 `;
 ContentContainer.displayName = 'ContentContainer';

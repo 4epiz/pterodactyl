@@ -12,11 +12,13 @@ import { DeepPartial } from 'ts-essentials';
 import { useState } from 'react';
 import { deepmerge, deepmergeCustom } from 'deepmerge-ts';
 import { theme } from 'twin.macro';
-import { hexToRgba } from '@/lib/helpers';
+import { readToken, useTheme } from '@/components/theme/ThemeProvider';
 
 ChartJS.register(LineElement, PointElement, Filler, LinearScale);
 
-const options: ChartOptions<'line'> = {
+// Built on every render so that colours follow the active theme; canvas cannot
+// read CSS variables directly.
+const baseOptions = (): ChartOptions<'line'> => ({
     responsive: true,
     animation: false,
     plugins: {
@@ -45,16 +47,17 @@ const options: ChartOptions<'line'> = {
             type: 'linear',
             grid: {
                 display: true,
-                color: theme('colors.gray.700'),
+                color: readToken('line'),
                 drawBorder: false,
             },
             ticks: {
                 display: true,
                 count: 3,
-                color: theme('colors.gray.200'),
+                padding: 8,
+                color: readToken('fg-subtle'),
                 font: {
                     family: theme('fontFamily.sans'),
-                    size: 11,
+                    size: 10,
                     weight: '400',
                 },
             },
@@ -65,13 +68,38 @@ const options: ChartOptions<'line'> = {
             radius: 0,
         },
         line: {
-            tension: 0.15,
+            tension: 0.35,
+            borderWidth: 1.5,
         },
     },
-};
+});
 
 function getOptions(opts?: DeepPartial<ChartOptions<'line'>> | undefined): ChartOptions<'line'> {
-    return deepmerge(options, opts || {});
+    return deepmerge(baseOptions(), opts || {});
+}
+
+// Dataset colours by index: primary ink line, then a quieter secondary line.
+const palette = ['ink', 'fg-subtle'];
+
+function colorize(dataset: ChartDataset<'line'>, index: number): ChartDataset<'line'> {
+    const token = palette[index % palette.length];
+
+    return {
+        ...dataset,
+        borderColor: dataset.borderColor ?? readToken(token, index ? 0.9 : 1),
+        backgroundColor:
+            dataset.backgroundColor ??
+            ((context: { chart: ChartJS }) => {
+                const { ctx, chartArea } = context.chart;
+                if (!chartArea) return 'transparent';
+
+                const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                gradient.addColorStop(0, readToken(token, index ? 0.08 : 0.16));
+                gradient.addColorStop(1, readToken(token, 0));
+
+                return gradient;
+            }),
+    } as ChartDataset<'line'>;
 }
 
 type ChartDatasetCallback = (value: ChartDataset<'line'>, index: number) => ChartDataset<'line'>;
@@ -91,8 +119,6 @@ function getEmptyData(label: string, sets = 1, callback?: ChartDatasetCallback |
                         fill: true,
                         label,
                         data: Array(20).fill(-5),
-                        borderColor: theme('colors.cyan.400'),
-                        backgroundColor: hexToRgba(theme('colors.cyan.700'), 0.5),
                     },
                     index
                 )
@@ -109,6 +135,8 @@ interface UseChartOptions {
 }
 
 function useChart(label: string, opts?: UseChartOptions) {
+    // Subscribing to the theme re-renders the chart with new colours when it changes.
+    useTheme();
     const options = getOptions(
         typeof opts?.options === 'number' ? { scales: { y: { min: 0, suggestedMax: opts.options } } } : opts?.options
     );
@@ -136,7 +164,9 @@ function useChart(label: string, opts?: UseChartOptions) {
             })
         );
 
-    return { props: { data, options }, push, clear };
+    const themed = { ...data, datasets: data.datasets.map(colorize) };
+
+    return { props: { data: themed, options }, push, clear };
 }
 
 function useChartTickLabel(label: string, max: number, tickLabel: string, roundTo?: number) {

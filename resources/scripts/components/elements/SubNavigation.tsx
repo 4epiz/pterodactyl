@@ -1,29 +1,27 @@
 import styled from 'styled-components/macro';
-import tw, { theme } from 'twin.macro';
+import tw from 'twin.macro';
 
+// No longer used by the panel's own routers (the sidebar replaced it) but kept,
+// restyled, for addons that render their own tab bars.
 const SubNavigation = styled.div`
-    ${tw`w-full bg-neutral-700 shadow overflow-x-auto`};
+    ${tw`w-full border-b border-line overflow-x-auto`};
 
     & > div {
-        ${tw`flex items-center text-sm mx-auto px-2`};
-        max-width: 1200px;
+        ${tw`flex items-center gap-1 text-sm mx-auto px-4`};
+        max-width: 1180px;
 
         & > a,
         & > div {
-            ${tw`inline-block py-3 px-4 text-neutral-300 no-underline whitespace-nowrap transition-all duration-150`};
-
-            &:not(:first-of-type) {
-                ${tw`ml-2`};
-            }
+            ${tw`relative inline-block py-3 px-3 text-fg-muted no-underline whitespace-nowrap transition-colors duration-150`};
 
             &:hover {
-                ${tw`text-neutral-100`};
+                ${tw`text-fg`};
             }
 
             &:active,
             &.active {
-                ${tw`text-neutral-100`};
-                box-shadow: inset 0 -2px ${theme`colors.cyan.600`.toString()};
+                ${tw`text-fg`};
+                box-shadow: inset 0 -2px rgb(var(--ink));
             }
         }
     }

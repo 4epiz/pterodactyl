@@ -6,19 +6,12 @@ export interface Props {
     hasError?: boolean;
 }
 
-const light = css<Props>`
-    ${tw`bg-white border-neutral-200 text-neutral-800`};
-    &:focus {
-        ${tw`border-primary-400`}
-    }
-
-    &:disabled {
-        ${tw`bg-neutral-100 border-neutral-200`};
-    }
-`;
+// The theme styles inputs the same way on light and dark surfaces; "isLight"
+// is kept for compatibility with existing callers and addons.
+const light = css<Props>``;
 
 const checkboxStyle = css<Props>`
-    ${tw`bg-neutral-500 cursor-pointer appearance-none inline-block align-middle select-none flex-shrink-0 w-4 h-4 text-primary-400 border border-neutral-300 rounded-sm`};
+    ${tw`bg-surface cursor-pointer appearance-none inline-block align-middle select-none flex-shrink-0 w-4 h-4 text-ink border border-line-strong rounded`};
     color-adjust: exact;
     background-origin: border-box;
     transition: all 75ms linear, box-shadow 25ms linear;
@@ -31,8 +24,8 @@ const checkboxStyle = css<Props>`
     }
 
     &:focus {
-        ${tw`outline-none border-primary-300`};
-        box-shadow: 0 0 0 1px rgba(9, 103, 210, 0.25);
+        ${tw`outline-none`};
+        box-shadow: 0 0 0 3px rgb(var(--ink) / 0.14);
     }
 `;
 
@@ -40,12 +33,21 @@ const inputStyle = css<Props>`
     // Reset to normal styling.
     resize: none;
     ${tw`appearance-none outline-none w-full min-w-0`};
-    ${tw`p-3 border-2 rounded text-sm transition-all duration-150`};
-    ${tw`bg-neutral-600 border-neutral-500 hover:border-neutral-400 text-neutral-200 shadow-none focus:ring-0`};
+    ${tw`px-3 py-2 border rounded-lg text-sm transition-all duration-150`};
+    ${tw`bg-surface border-line-strong text-fg shadow-sm focus:ring-0`};
+    line-height: 1.25rem;
+
+    &::placeholder {
+        ${tw`text-fg-subtle`};
+    }
+
+    &:hover:not(:disabled):not(:focus) {
+        border-color: rgb(var(--fg-subtle) / 0.6);
+    }
 
     & + .input-help {
-        ${tw`mt-1 text-xs`};
-        ${(props) => (props.hasError ? tw`text-red-200` : tw`text-neutral-200`)};
+        ${tw`mt-1.5 text-xs`};
+        ${(props) => (props.hasError ? tw`text-red-500` : tw`text-fg-subtle`)};
     }
 
     &:required,
@@ -54,16 +56,27 @@ const inputStyle = css<Props>`
     }
 
     &:not(:disabled):not(:read-only):focus {
-        ${tw`shadow-md border-primary-300 ring-2 ring-primary-400 ring-opacity-50`};
-        ${(props) => props.hasError && tw`border-red-300 ring-red-200`};
+        border-color: rgb(var(--ink) / 0.55);
+        box-shadow: 0 0 0 3px rgb(var(--ink) / 0.1);
+        ${(props) =>
+            props.hasError &&
+            css`
+                border-color: rgb(239 68 68 / 0.8);
+                box-shadow: 0 0 0 3px rgb(239 68 68 / 0.15);
+            `};
+    }
+
+    &:disabled,
+    &:read-only {
+        ${tw`bg-surface-2 text-fg-muted`};
     }
 
     &:disabled {
-        ${tw`opacity-75`};
+        ${tw`cursor-not-allowed opacity-75`};
     }
 
     ${(props) => props.isLight && light};
-    ${(props) => props.hasError && tw`text-red-100 border-red-400 hover:border-red-300`};
+    ${(props) => props.hasError && tw`border-red-500`};
 `;
 
 const Input = styled.input<Props>`

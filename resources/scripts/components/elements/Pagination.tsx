@@ -21,7 +21,7 @@ interface Props<T> {
 }
 
 const Block = styled(Button)`
-    ${tw`p-0 w-10 h-10`}
+    ${tw`p-0 w-9 h-9`}
 
     &:not(:last-of-type) {
         ${tw`mr-2`};

@@ -1,55 +1,66 @@
 import React, { forwardRef } from 'react';
 import { Form } from 'formik';
-import styled from 'styled-components/macro';
-import { breakpoint } from '@/theme';
+import { motion } from 'framer-motion';
+import { ServerIcon } from '@heroicons/react/outline';
+import { useStoreState } from 'easy-peasy';
 import FlashMessageRender from '@/components/FlashMessageRender';
-import tw from 'twin.macro';
+import ThemeToggle from '@/components/theme/ThemeToggle';
+import AuthShowcase from '@/components/theme/AuthShowcase';
 
 type Props = React.DetailedHTMLProps<React.FormHTMLAttributes<HTMLFormElement>, HTMLFormElement> & {
     title?: string;
+    subtitle?: string;
 };
 
-const Container = styled.div`
-    ${breakpoint('sm')`
-        ${tw`w-4/5 mx-auto`}
-    `};
+export default forwardRef<HTMLFormElement, Props>(({ title, subtitle, className: _className, ...props }, ref) => {
+    const name = useStoreState((state) => state.settings.data?.name || 'Pterodactyl');
 
-    ${breakpoint('md')`
-        ${tw`p-10`}
-    `};
-
-    ${breakpoint('lg')`
-        ${tw`w-3/5`}
-    `};
-
-    ${breakpoint('xl')`
-        ${tw`w-full`}
-        max-width: 700px;
-    `};
-`;
-
-export default forwardRef<HTMLFormElement, Props>(({ title, ...props }, ref) => (
-    <Container>
-        {title && <h2 css={tw`text-3xl text-center text-neutral-100 font-medium py-4`}>{title}</h2>}
-        <FlashMessageRender css={tw`mb-2 px-1`} />
-        <Form {...props} ref={ref}>
-            <div css={tw`md:flex w-full bg-white shadow-lg rounded-lg p-6 md:pl-0 mx-1`}>
-                <div css={tw`flex-none select-none mb-6 md:mb-0 self-center`}>
-                    <img src={'/assets/svgs/pterodactyl.svg'} css={tw`block w-48 md:w-64 mx-auto`} />
-                </div>
-                <div css={tw`flex-1`}>{props.children}</div>
+    return (
+        <div className={'grid min-h-screen bg-app lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]'}>
+            <div className={'flex min-h-screen flex-col px-6 py-6 sm:px-10'}>
+                <header className={'flex items-center justify-between'}>
+                    <span className={'flex items-center gap-2.5'}>
+                        <span
+                            className={
+                                'flex h-8 w-8 items-center justify-center rounded-lg bg-ink text-ink-fg shadow-card'
+                            }
+                        >
+                            <ServerIcon className={'h-4 w-4'} strokeWidth={1.8} />
+                        </span>
+                        <span className={'text-[15px] font-semibold tracking-tight text-fg'}>{name}</span>
+                    </span>
+                    <ThemeToggle />
+                </header>
+                <main className={'flex flex-1 items-center justify-center py-12'}>
+                    <motion.div
+                        className={'w-full max-w-sm'}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                        {title && <h1 className={'text-[28px] font-semibold tracking-tight text-fg'}>{title}</h1>}
+                        {subtitle && <p className={'mt-2 text-sm text-fg-muted'}>{subtitle}</p>}
+                        <FlashMessageRender className={'mt-6'} />
+                        <Form {...props} ref={ref} className={'mt-8'}>
+                            {props.children}
+                        </Form>
+                    </motion.div>
+                </main>
+                <footer className={'text-xs text-fg-subtle'}>
+                    &copy; 2015 - {new Date().getFullYear()}&nbsp;
+                    <a
+                        rel={'noopener nofollow noreferrer'}
+                        href={'https://pterodactyl.io'}
+                        target={'_blank'}
+                        className={'text-fg-subtle no-underline hover:text-fg-muted'}
+                    >
+                        Pterodactyl Software
+                    </a>
+                </footer>
             </div>
-        </Form>
-        <p css={tw`text-center text-neutral-500 text-xs mt-4`}>
-            &copy; 2015 - {new Date().getFullYear()}&nbsp;
-            <a
-                rel={'noopener nofollow noreferrer'}
-                href={'https://pterodactyl.io'}
-                target={'_blank'}
-                css={tw`no-underline text-neutral-500 hover:text-neutral-300`}
-            >
-                Pterodactyl Software
-            </a>
-        </p>
-    </Container>
-));
+            <div className={'hidden p-3 lg:block'}>
+                <AuthShowcase />
+            </div>
+        </div>
+    );
+});

@@ -1,6 +1,6 @@
 import * as React from 'react';
-import tw, { TwStyle } from 'twin.macro';
-import styled from 'styled-components/macro';
+import classNames from 'classnames';
+import { motion } from 'framer-motion';
 
 export type FlashMessageType = 'success' | 'info' | 'warning' | 'error';
 
@@ -10,57 +10,30 @@ interface Props {
     type?: FlashMessageType;
 }
 
-const styling = (type?: FlashMessageType): TwStyle | string => {
-    switch (type) {
-        case 'error':
-            return tw`bg-red-600 border-red-800`;
-        case 'info':
-            return tw`bg-primary-600 border-primary-800`;
-        case 'success':
-            return tw`bg-green-600 border-green-800`;
-        case 'warning':
-            return tw`bg-yellow-600 border-yellow-800`;
-        default:
-            return '';
-    }
+const tone: Record<FlashMessageType, { box: string; dot: string }> = {
+    error: { box: 'bg-red-500/[0.08] ring-red-500/25', dot: 'bg-red-500' },
+    info: { box: 'bg-surface ring-line', dot: 'bg-fg-subtle' },
+    success: { box: 'bg-emerald-500/[0.08] ring-emerald-500/25', dot: 'bg-emerald-500' },
+    warning: { box: 'bg-amber-500/[0.08] ring-amber-500/25', dot: 'bg-amber-500' },
 };
 
-const getBackground = (type?: FlashMessageType): TwStyle | string => {
-    switch (type) {
-        case 'error':
-            return tw`bg-red-500`;
-        case 'info':
-            return tw`bg-primary-500`;
-        case 'success':
-            return tw`bg-green-500`;
-        case 'warning':
-            return tw`bg-yellow-500`;
-        default:
-            return '';
-    }
-};
-
-const Container = styled.div<{ $type?: FlashMessageType }>`
-    ${tw`p-2 border items-center leading-normal rounded flex w-full text-sm text-white`};
-    ${(props) => styling(props.$type)};
-`;
-Container.displayName = 'MessageBox.Container';
-
-const MessageBox = ({ title, children, type }: Props) => (
-    <Container css={tw`lg:inline-flex`} $type={type} role={'alert'}>
-        {title && (
-            <span
-                className={'title'}
-                css={[
-                    tw`flex rounded-full uppercase px-2 py-1 text-xs font-bold mr-3 leading-none`,
-                    getBackground(type),
-                ]}
-            >
-                {title}
-            </span>
+const MessageBox = ({ title, children, type = 'info' }: Props) => (
+    <motion.div
+        role={'alert'}
+        initial={{ opacity: 0, y: -4 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2 }}
+        className={classNames(
+            'flex w-full items-start gap-3 rounded-xl px-4 py-3 text-sm leading-relaxed text-fg ring-1 ring-inset',
+            tone[type].box
         )}
-        <span css={tw`mr-2 text-left flex-auto`}>{children}</span>
-    </Container>
+    >
+        <span className={classNames('mt-[7px] h-1.5 w-1.5 flex-none rounded-full', tone[type].dot)} />
+        <span className={'min-w-0 flex-auto'}>
+            {title && <span className={'mr-1.5 font-semibold'}>{title}.</span>}
+            {children}
+        </span>
+    </motion.div>
 );
 MessageBox.displayName = 'MessageBox';
 

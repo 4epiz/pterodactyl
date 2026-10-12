@@ -8,24 +8,18 @@ import { DialogContext, IconPosition, RenderDialogProps, styles } from './';
 const variants = {
     open: {
         scale: 1,
+        y: 0,
         opacity: 1,
-        transition: {
-            type: 'spring',
-            damping: 15,
-            stiffness: 300,
-            duration: 0.15,
-        },
+        transition: { type: 'spring', damping: 30, stiffness: 420 },
     },
     closed: {
-        scale: 0.75,
+        scale: 0.96,
+        y: 8,
         opacity: 0,
-        transition: {
-            type: 'easeIn',
-            duration: 0.15,
-        },
+        transition: { ease: [0.4, 0, 1, 1], duration: 0.14 },
     },
     bounce: {
-        scale: 0.95,
+        scale: 0.985,
         opacity: 1,
         transition: { type: 'linear', duration: 0.075 },
     },
@@ -72,7 +66,10 @@ export default ({
                         open={open}
                         onClose={onDialogClose}
                     >
-                        <div className={'fixed inset-0 bg-gray-900/50 z-40'} />
+                        <div
+                            className={'fixed inset-0 z-40 backdrop-blur-[2px]'}
+                            style={{ background: 'rgb(0 0 0 / 0.45)' }}
+                        />
                         <div className={'fixed inset-0 overflow-y-auto z-50'}>
                             <div
                                 ref={container}
