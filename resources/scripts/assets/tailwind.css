@@ -204,3 +204,29 @@
     --accent: 244 63 94;
     --accent-text: 251 113 133;
 }
+
+/* Code editor syntax colours (components/theme/editor). Kept soft so code stays
+   readable without turning the page into a rainbow. */
+:root,
+:root[data-theme='dark'] {
+    --syn-keyword: 202 166 247;
+    --syn-string: 166 209 137;
+    --syn-number: 239 159 118;
+    --syn-comment: 115 118 136;
+    --syn-def: 140 170 238;
+    --syn-property: 153 209 219;
+    --syn-atom: 229 200 144;
+    --syn-tag: 231 130 132;
+    --syn-meta: 202 158 230;
+}
+:root[data-theme='light'] {
+    --syn-keyword: 136 57 239;
+    --syn-string: 64 140 43;
+    --syn-number: 214 88 11;
+    --syn-comment: 140 143 161;
+    --syn-def: 30 102 245;
+    --syn-property: 23 132 140;
+    --syn-atom: 190 120 20;
+    --syn-tag: 210 15 57;
+    --syn-meta: 136 57 239;
+}
