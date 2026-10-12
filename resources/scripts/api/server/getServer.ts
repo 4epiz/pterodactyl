@@ -59,6 +59,9 @@ export interface Server {
     };
     isTransferring: boolean;
     skipScripts: boolean;
+    // Name of the server's egg (e.g. "Paper", "FiveM"), present when the API
+    // response included the egg relationship.
+    eggName?: string;
     variables: ServerEggVariable[];
     allocations: Allocation[];
 }
@@ -85,6 +88,7 @@ export const rawDataToServerObject = ({ attributes: data }: FractalResponseData)
     featureLimits: { ...data.feature_limits },
     isTransferring: data.is_transferring,
     skipScripts: data.skip_scripts,
+    eggName: (data.relationships?.egg as FractalResponseData | undefined)?.attributes?.name,
     variables: ((data.relationships?.variables as FractalResponseList | undefined)?.data || []).map(
         rawDataToServerEggVariable
     ),
@@ -95,7 +99,7 @@ export const rawDataToServerObject = ({ attributes: data }: FractalResponseData)
 
 export default (uuid: string): Promise<[Server, string[]]> => {
     return new Promise((resolve, reject) => {
-        http.get(`/api/client/servers/${uuid}`)
+        http.get(`/api/client/servers/${uuid}`, { params: { include: 'egg' } })
             .then(({ data }) =>
                 resolve([
                     rawDataToServerObject(data),

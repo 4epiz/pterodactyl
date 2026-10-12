@@ -8,7 +8,6 @@ import classNames from 'classnames';
 import { capitalize } from '@/lib/strings';
 import CopyOnClick from '@/components/elements/CopyOnClick';
 import Meter from '@/components/theme/Meter';
-import { Metric, metricBar, metricChip } from '@/components/theme/metrics';
 import {
     ArrowDownIcon,
     ArrowUpIcon,
@@ -28,19 +27,15 @@ type IconComponent = (props: React.ComponentProps<'svg'>) => JSX.Element;
 interface RowProps {
     label: string;
     icon: IconComponent;
-    color?: Metric;
     meter?: number | null;
     children: React.ReactNode;
 }
 
-const Row = ({ label, icon: Icon, color, meter, children }: RowProps) => (
+const Row = ({ label, icon: Icon, meter, children }: RowProps) => (
     <div className={'flex flex-1 flex-col justify-center px-4 py-3'}>
         <div className={'flex items-center gap-3'}>
             <span
-                className={classNames(
-                    'flex h-8 w-8 flex-none items-center justify-center rounded-lg',
-                    color ? metricChip[color] : 'bg-surface-3 text-fg-muted'
-                )}
+                className={'flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-surface-3 text-fg-muted'}
             >
                 <Icon className={'h-4 w-4'} strokeWidth={1.8} />
             </span>
@@ -49,9 +44,7 @@ const Row = ({ label, icon: Icon, color, meter, children }: RowProps) => (
                 {children}
             </span>
         </div>
-        {meter !== undefined && (
-            <Meter value={meter} color={color ? metricBar[color] : undefined} className={'mt-2.5'} />
-        )}
+        {meter !== undefined && <Meter value={meter} className={'mt-2.5'} />}
     </div>
 );
 
@@ -121,7 +114,7 @@ const ServerDetailsBlock = ({ className }: { className?: string }) => {
                 <div className={'group flex flex-1 items-center gap-3 px-4 py-3'}>
                     <span
                         className={
-                            'flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-accent/10 text-accent-text'
+                            'flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-surface-3 text-fg-muted'
                         }
                     >
                         <GlobeAltIcon className={'h-4 w-4'} strokeWidth={1.8} />
@@ -149,7 +142,7 @@ const ServerDetailsBlock = ({ className }: { className?: string }) => {
                     />
                 </div>
             </CopyOnClick>
-            <Row label={'Uptime'} icon={ClockIcon} color={'uptime'}>
+            <Row label={'Uptime'} icon={ClockIcon}>
                 {status === null ? (
                     'Offline'
                 ) : stats.uptime > 0 ? (
@@ -158,37 +151,27 @@ const ServerDetailsBlock = ({ className }: { className?: string }) => {
                     capitalize(status)
                 )}
             </Row>
-            <Row label={'CPU'} icon={ChipIcon} color={'cpu'} meter={ratio(stats.cpu, limits.cpu)}>
+            <Row label={'CPU'} icon={ChipIcon} meter={ratio(stats.cpu, limits.cpu)}>
                 {offline ? (
                     <span className={'text-fg-subtle'}>Offline</span>
                 ) : (
                     <Limit limit={textLimits.cpu}>{stats.cpu.toFixed(2)}%</Limit>
                 )}
             </Row>
-            <Row
-                label={'Memory'}
-                icon={TemplateIcon}
-                color={'memory'}
-                meter={ratio(stats.memory, mbToBytes(limits.memory))}
-            >
+            <Row label={'Memory'} icon={TemplateIcon} meter={ratio(stats.memory, mbToBytes(limits.memory))}>
                 {offline ? (
                     <span className={'text-fg-subtle'}>Offline</span>
                 ) : (
                     <Limit limit={textLimits.memory}>{bytesToString(stats.memory)}</Limit>
                 )}
             </Row>
-            <Row
-                label={'Disk'}
-                icon={DatabaseIcon}
-                color={'disk'}
-                meter={limits.disk ? stats.disk / mbToBytes(limits.disk) : null}
-            >
+            <Row label={'Disk'} icon={DatabaseIcon} meter={limits.disk ? stats.disk / mbToBytes(limits.disk) : null}>
                 <Limit limit={textLimits.disk}>{bytesToString(stats.disk)}</Limit>
             </Row>
-            <Row label={'Inbound'} icon={ArrowDownIcon} color={'net-in'}>
+            <Row label={'Inbound'} icon={ArrowDownIcon}>
                 {offline ? <span className={'text-fg-subtle'}>—</span> : bytesToString(stats.rx)}
             </Row>
-            <Row label={'Outbound'} icon={ArrowUpIcon} color={'net-out'}>
+            <Row label={'Outbound'} icon={ArrowUpIcon}>
                 {offline ? <span className={'text-fg-subtle'}>—</span> : bytesToString(stats.tx)}
             </Row>
             <Row label={'Node'} icon={ServerIcon}>

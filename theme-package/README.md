@@ -3,7 +3,9 @@
 Graphite is a calm, neutral theme for the Pterodactyl 1.x client area. It includes:
 
 - light and dark themes with a Light / Dark / System switcher (remembered per browser, no flash on load)
-- five accent colours to choose from, plus a colour per resource (CPU, memory, disk, network)
+- floating sidebar and top bar, with the Pterodactyl logo
+- per-game artwork on server cards and the console page, picked automatically from each server's egg
+- an optional accent colour (mono by default), chosen from the account menu
 - a sidebar layout that works on desktop and mobile
 - a redesigned dashboard, console and sign-in pages
 - smooth, restrained motion via Framer Motion
@@ -92,13 +94,26 @@ All colours live in `resources/scripts/assets/tailwind.css` as space-separated R
 
 ### Accent colours
 
-Users choose an accent (blue, violet, emerald, amber or rose) from the sidebar; it is remembered per browser. The accent colours buttons, switches, focus rings, the active menu item and the brand mark. Each accent is defined near the end of `tailwind.css` as `--accent` (fills), `--accent-fg` (text on fills) and `--accent-text` (accent coloured text and icons), with lighter values for the dark theme. To change the default, edit the `:root, :root[data-accent='blue']` block or add your own `[data-accent='…']` block and list it in `ACCENTS` in `components/theme/ThemeProvider.tsx` and in the inline script in `resources/views/templates/wrapper.blade.php`.
+The accent is mono (black in light mode, white in dark mode) by default. Users can pick blue, violet, emerald, amber or rose from the account menu at the bottom of the sidebar; the choice is remembered per browser. Each accent is defined near the end of `tailwind.css` as `--accent` (fills), `--accent-fg` (text on fills) and `--accent-text` (accent coloured text), with separate values for the dark theme. To add one, add a `[data-accent='…']` block there, add it to `ACCENTS` in `components/theme/ThemeProvider.tsx` and to the inline script in `resources/views/templates/wrapper.blade.php`.
 
-### Resource colours
+### Game artwork
 
-CPU, memory, disk, network and uptime each have their own colour (`--c-cpu`, `--c-memory`, `--c-disk`, `--c-net-in`, `--c-net-out`, `--c-uptime`), used consistently by the console stats, usage bars and charts. Bars still turn amber above 80% and red above 90% usage.
+Server cards, the console header and the sidebar show artwork for the server's game. The game is detected from the egg name first, then from the docker image, startup command and variable names (`components/theme/games.ts`). Supported out of the box: Minecraft (Paper, Forge, Fabric, Velocity, Bedrock, ...), FiveM, RedM, Rust, ARK, Valheim, Terraria, Source games (CS2, Garry's Mod, TF2, ...), survival games (Project Zomboid, 7 Days to Die, DayZ, ...), voice servers, databases and bots/applications. Anything else gets a neutral illustration.
 
-After editing, rebuild with `yarn build:production`.
+The illustrations are original artwork drawn for this theme. They evoke each genre without using any game's copyrighted or trademarked art, which is what lets the theme be sold.
+
+To use your own images instead, for example official artwork you have permission to use:
+
+1. Put the image in the panel's `public` folder, e.g. `public/themes/graphite/games/minecraft.jpg`. A wide image of about 1200×600 works best.
+2. Map the game to it in `customGameImages` in `resources/scripts/components/theme/games.ts`:
+   ```ts
+   export const customGameImages: Partial<Record<GameKey, string>> = {
+       minecraft: '/themes/graphite/games/minecraft.jpg',
+   };
+   ```
+3. Rebuild with `yarn build:production`.
+
+To recognise an egg that isn't detected, add its name to the matching pattern in the `rules` list in the same file.
 
 ## Updating the panel
 

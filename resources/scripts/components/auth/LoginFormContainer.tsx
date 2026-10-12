@@ -1,7 +1,6 @@
 import React, { forwardRef } from 'react';
 import { Form } from 'formik';
 import { motion } from 'framer-motion';
-import { ServerIcon } from '@heroicons/react/outline';
 import { useStoreState } from 'easy-peasy';
 import FlashMessageRender from '@/components/FlashMessageRender';
 import ThemeToggle from '@/components/theme/ThemeToggle';
@@ -20,13 +19,7 @@ export default forwardRef<HTMLFormElement, Props>(({ title, subtitle, className:
             <div className={'flex min-h-screen flex-col px-6 py-6 sm:px-10'}>
                 <header className={'flex items-center justify-between'}>
                     <span className={'flex items-center gap-2.5'}>
-                        <span
-                            className={
-                                'flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-accent-fg shadow-card'
-                            }
-                        >
-                            <ServerIcon className={'h-4 w-4'} strokeWidth={1.8} />
-                        </span>
+                        <img src={'/assets/svgs/pterodactyl.svg'} alt={''} className={'h-9 w-9'} />
                         <span className={'text-[15px] font-semibold tracking-tight text-fg'}>{name}</span>
                     </span>
                     <ThemeToggle />

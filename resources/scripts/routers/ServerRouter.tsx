@@ -96,7 +96,7 @@ export default () => {
                             href={`/admin/servers/view/${serverId}`}
                             target={'_blank'}
                             className={
-                                'flex h-9 items-center gap-3 rounded-lg px-3 text-sm font-medium text-fg-muted no-underline hover:text-fg'
+                                'flex h-9 items-center gap-3 rounded-lg px-2.5 text-sm font-medium text-fg-muted no-underline hover:text-fg'
                             }
                         >
                             <ExternalLinkIcon className={'h-[18px] w-[18px] text-fg-subtle'} strokeWidth={1.6} />

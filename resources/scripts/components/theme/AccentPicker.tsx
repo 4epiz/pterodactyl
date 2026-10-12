@@ -5,6 +5,7 @@ import { Accent, ACCENTS, useTheme } from '@/components/theme/ThemeProvider';
 
 // Swatch colours match the light theme values in assets/tailwind.css.
 const swatch: Record<Accent, string> = {
+    mono: 'linear-gradient(135deg, #18181b 50%, #e4e4e7 50%)',
     blue: '#2563eb',
     violet: '#7c3aed',
     emerald: '#059669',
@@ -16,7 +17,7 @@ export default ({ id = 'accent' }: { id?: string }) => {
     const { accent, setAccent } = useTheme();
 
     return (
-        <div className={'flex items-center justify-between px-1'}>
+        <div className={'flex items-center justify-between'}>
             <span className={'text-xs text-fg-subtle'}>Accent</span>
             <div role={'radiogroup'} aria-label={'Accent colour'} className={'flex items-center gap-1.5'}>
                 {ACCENTS.map((value) => (
@@ -39,10 +40,10 @@ export default ({ id = 'accent' }: { id?: string }) => {
                         )}
                         <span
                             className={classNames(
-                                'h-3 w-3 rounded-full transition-transform duration-150',
+                                'h-3.5 w-3.5 rounded-full ring-1 ring-inset ring-line-strong transition-transform duration-150',
                                 accent === value ? 'scale-100' : 'scale-90 hover:scale-100'
                             )}
-                            style={{ backgroundColor: swatch[value] }}
+                            style={{ background: swatch[value] }}
                         />
                     </button>
                 ))}
