@@ -75,7 +75,7 @@ build_panel() {
     fi
     bold "Building the panel frontend (this can take a few minutes)"
     (cd "$PANEL" && NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=4096}" yarn build:production)
-    (cd "$PANEL" && php artisan view:clear > /dev/null && php artisan config:clear > /dev/null)
+    (cd "$PANEL" && php artisan view:clear > /dev/null && php artisan config:clear > /dev/null) || warn "Could not clear the Laravel caches; run php artisan view:clear manually."
 }
 
 backup() {
