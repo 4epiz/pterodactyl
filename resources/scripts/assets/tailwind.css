@@ -12,8 +12,11 @@
  * third party addons follow the active theme without being rewritten.
  */
 @layer base {
+    /* [data-theme-scope='dark'] renders a section (e.g. the console hero) with
+       the dark tokens regardless of the page theme. */
     :root,
-    :root[data-theme='dark'] {
+    :root[data-theme='dark'],
+    [data-theme-scope='dark'] {
         color-scheme: dark;
 
         --app: 12 12 13;
@@ -135,12 +138,17 @@
 }
 
 /*
- * Accent colour, chosen by the user from the sidebar (data-accent on <html>).
+ * Accent colour, chosen by the user from the account menu (mono by default) (data-accent on <html>).
  * --accent is used for fills (buttons, switches, the brand mark) and
  * --accent-text for accent coloured text and icons, which needs to be lighter
  * on the dark theme to stay readable.
  */
 :root,
+:root[data-accent='mono'] {
+    --accent: 24 24 27;
+    --accent-fg: 250 250 250;
+    --accent-text: 24 24 27;
+}
 :root[data-accent='blue'] {
     --accent: 37 99 235;
     --accent-fg: 255 255 255;
@@ -168,6 +176,13 @@
 }
 
 :root[data-theme='dark']:not([data-accent]),
+:root[data-theme='dark'][data-accent='mono'],
+:root:not([data-accent]) [data-theme-scope='dark'],
+:root[data-accent='mono'] [data-theme-scope='dark'] {
+    --accent: 237 237 239;
+    --accent-fg: 12 12 13;
+    --accent-text: 237 237 239;
+}
 :root[data-theme='dark'][data-accent='blue'] {
     --accent: 59 130 246;
     --accent-text: 96 165 250;
@@ -188,22 +203,4 @@
 :root[data-theme='dark'][data-accent='rose'] {
     --accent: 244 63 94;
     --accent-text: 251 113 133;
-}
-
-/* One colour per resource, shared by the stat list, meters and charts. */
-:root {
-    --c-cpu: 14 165 233;
-    --c-memory: 139 92 246;
-    --c-disk: 20 184 166;
-    --c-net-in: 132 204 22;
-    --c-net-out: 236 72 153;
-    --c-uptime: 16 185 129;
-}
-:root[data-theme='dark'] {
-    --c-cpu: 56 189 248;
-    --c-memory: 167 139 250;
-    --c-disk: 45 212 191;
-    --c-net-in: 163 230 53;
-    --c-net-out: 244 114 182;
-    --c-uptime: 52 211 153;
 }

@@ -6,19 +6,18 @@ import { Line } from 'react-chartjs-2';
 import { useChart, useChartTickLabel } from '@/components/server/console/chart';
 import { bytesToString } from '@/lib/formatters';
 import ChartBlock from '@/components/server/console/ChartBlock';
-import { metricToken } from '@/components/theme/metrics';
 
 export default () => {
     const status = ServerContext.useStoreState((state) => state.status.value);
     const limits = ServerContext.useStoreState((state) => state.server.data!.limits);
     const previous = useRef<Record<'tx' | 'rx', number>>({ tx: -1, rx: -1 });
 
-    const cpu = useChartTickLabel('CPU', limits.cpu, '%', 2, metricToken.cpu);
-    const memory = useChartTickLabel('Memory', limits.memory, 'MiB', undefined, metricToken.memory);
+    const cpu = useChartTickLabel('CPU', limits.cpu, '%', 2);
+    const memory = useChartTickLabel('Memory', limits.memory, 'MiB');
     const network = useChart('Network', {
         sets: 2,
         // Dataset 0 carries transmitted (outbound) bytes, dataset 1 received.
-        colors: [metricToken['net-out'], metricToken['net-in']],
+        colors: ['accent', 'fg-subtle'],
         options: {
             scales: {
                 y: {
@@ -73,33 +72,27 @@ export default () => {
 
     return (
         <>
-            <ChartBlock
-                title={'CPU load'}
-                metric={'cpu'}
-                value={offline || cpuNow === null ? '—' : `${cpuNow.toFixed(1)}%`}
-            >
+            <ChartBlock title={'CPU load'} value={offline || cpuNow === null ? '—' : `${cpuNow.toFixed(1)}%`}>
                 <Line {...cpu.props} />
             </ChartBlock>
             <ChartBlock
                 title={'Memory'}
-                metric={'memory'}
                 value={offline || memoryNow === null ? '—' : bytesToString(memoryNow * 1024 * 1024)}
             >
                 <Line {...memory.props} />
             </ChartBlock>
             <ChartBlock
                 title={'Network'}
-                metric={'net-in'}
                 value={offline ? '—' : undefined}
                 legend={
                     <>
                         {/* Dataset 0 carries transmitted (outbound) bytes, dataset 1 received. */}
                         <span className={'flex items-center gap-1.5'}>
-                            <span className={'h-1 w-3 rounded-full bg-metric-net-in'} />
+                            <span className={'h-0.5 w-3 rounded-full bg-fg-subtle'} />
                             In
                         </span>
                         <span className={'flex items-center gap-1.5'}>
-                            <span className={'h-1 w-3 rounded-full bg-metric-net-out'} />
+                            <span className={'h-0.5 w-3 rounded-full bg-accent'} />
                             Out
                         </span>
                     </>

@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronRightIcon, MenuAlt2Icon, XIcon } from '@heroicons/react/outline';
 import SearchContainer from '@/components/dashboard/search/SearchContainer';
+import ThemeToggle from '@/components/theme/ThemeToggle';
 
 export interface Crumb {
     label: React.ReactNode;
@@ -60,7 +61,12 @@ export default ({ sidebar, crumbs = [], children }: Props) => {
 
     return (
         <div className={'min-h-screen bg-app'}>
-            <aside className={'fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-line bg-app lg:block'}>
+            {/* Floating sidebar (desktop). */}
+            <aside
+                className={
+                    'fixed inset-y-3 left-3 z-30 hidden w-64 overflow-hidden rounded-2xl border border-line bg-surface shadow-card lg:block'
+                }
+            >
                 {sidebar('desktop')}
             </aside>
 
@@ -69,7 +75,7 @@ export default ({ sidebar, crumbs = [], children }: Props) => {
                     <div className={'fixed inset-0 z-40 lg:hidden'}>
                         <motion.div
                             className={'absolute inset-0 backdrop-blur-[2px]'}
-                            style={{ backgroundColor: 'rgb(0 0 0 / 0.45)' }}
+                            style={{ backgroundColor: 'rgb(0 0 0 / 0.4)' }}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
@@ -77,10 +83,12 @@ export default ({ sidebar, crumbs = [], children }: Props) => {
                             onClick={() => setOpen(false)}
                         />
                         <motion.aside
-                            className={'absolute inset-y-0 left-0 w-[17rem] max-w-[85vw] border-r border-line bg-app'}
-                            initial={{ x: '-100%' }}
+                            className={
+                                'absolute inset-y-3 left-3 w-[17rem] max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-2xl border border-line bg-surface shadow-pop'
+                            }
+                            initial={{ x: '-110%' }}
                             animate={{ x: 0 }}
-                            exit={{ x: '-100%' }}
+                            exit={{ x: '-110%' }}
                             transition={{ duration: 0.32, ease }}
                         >
                             <button
@@ -88,7 +96,7 @@ export default ({ sidebar, crumbs = [], children }: Props) => {
                                 onClick={() => setOpen(false)}
                                 aria-label={'Close menu'}
                                 className={
-                                    'absolute right-3 top-3.5 z-10 flex h-7 w-7 items-center justify-center rounded-lg text-fg-subtle hover:bg-surface-3 hover:text-fg'
+                                    'absolute right-3 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-lg text-fg-subtle hover:bg-surface-3 hover:text-fg'
                                 }
                             >
                                 <XIcon className={'h-4 w-4'} strokeWidth={1.8} />
@@ -99,10 +107,11 @@ export default ({ sidebar, crumbs = [], children }: Props) => {
                 )}
             </AnimatePresence>
 
-            <div className={'lg:pl-64'}>
+            <div className={'px-3 pt-3 lg:pl-[17.5rem]'}>
+                {/* Floating top bar. */}
                 <header
                     className={
-                        'sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-line bg-app/80 px-4 backdrop-blur-md sm:px-6'
+                        'sticky top-3 z-20 flex h-14 items-center gap-3 rounded-2xl border border-line bg-surface/80 px-3 shadow-card backdrop-blur-xl sm:px-4'
                     }
                 >
                     <button
@@ -110,7 +119,7 @@ export default ({ sidebar, crumbs = [], children }: Props) => {
                         onClick={() => setOpen(true)}
                         aria-label={'Open menu'}
                         className={
-                            '-ml-1.5 flex h-8 w-8 flex-none items-center justify-center rounded-lg text-fg-muted hover:bg-surface-3 hover:text-fg lg:hidden'
+                            'flex h-8 w-8 flex-none items-center justify-center rounded-lg text-fg-muted hover:bg-surface-3 hover:text-fg lg:hidden'
                         }
                     >
                         <MenuAlt2Icon className={'h-5 w-5'} strokeWidth={1.6} />
@@ -119,19 +128,9 @@ export default ({ sidebar, crumbs = [], children }: Props) => {
                         <Breadcrumbs crumbs={crumbs} />
                     </div>
                     <SearchContainer />
+                    <ThemeToggle />
                 </header>
-                <main className={'relative'}>
-                    {/* Soft accent glow behind the top of each page. */}
-                    <div
-                        aria-hidden
-                        className={'pointer-events-none absolute inset-x-0 top-0 h-72'}
-                        style={{
-                            background:
-                                'radial-gradient(60% 100% at 50% 0%, rgb(var(--accent) / 0.09), transparent 70%)',
-                        }}
-                    />
-                    <div className={'relative'}>{children}</div>
-                </main>
+                <main>{children}</main>
             </div>
         </div>
     );

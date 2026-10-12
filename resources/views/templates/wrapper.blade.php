@@ -11,9 +11,9 @@
                     mode = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
                 }
                 document.documentElement.setAttribute('data-theme', mode === 'light' ? 'light' : 'dark');
-                var accent = 'blue';
-                try { accent = localStorage.getItem('panel:accent') || 'blue'; } catch (e) {}
-                if (/^(blue|violet|emerald|amber|rose)$/.test(accent)) {
+                var accent = 'mono';
+                try { accent = localStorage.getItem('panel:accent') || 'mono'; } catch (e) {}
+                if (/^(mono|blue|violet|emerald|amber|rose)$/.test(accent)) {
                     document.documentElement.setAttribute('data-accent', accent);
                 }
             })();
