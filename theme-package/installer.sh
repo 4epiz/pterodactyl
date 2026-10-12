@@ -30,6 +30,13 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+if [[ ! -f "$PKG/MANIFEST" && -n "$ACTION" ]]; then
+    echo "This is the installer source, not a built theme package." >&2
+    echo "Run theme-package/build.sh, unzip theme-package/dist/graphite-theme-<version>.zip" >&2
+    echo "outside the panel directory, and run ./install.sh from the unzipped folder." >&2
+    exit 1
+fi
+
 STATE="$PANEL/.graphite-theme"
 THEME_VERSION="$(cat "$PKG/VERSION" 2>/dev/null || echo dev)"
 SUPPORTED_RE='^(1\.11\.|1\.12\.|canary$)'
@@ -208,7 +215,7 @@ case "$ACTION" in
     uninstall) uninstall_theme ;;
     status) status_theme ;;
     *)
-        sed -n '3,15p' "$0" | sed 's/^# \{0,1\}//'
+        sed -n '3,14p' "$0" | sed 's/^# \{0,1\}//'
         exit 1
         ;;
 esac
