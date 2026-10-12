@@ -1,0 +1,150 @@
+/*
+ * "graphite" CodeMirror theme. Every colour comes from the theme tokens in
+ * assets/tailwind.css, so the editor follows the light and dark themes.
+ */
+.cm-s-graphite.CodeMirror {
+    height: 100%;
+    background: rgb(var(--surface));
+    color: rgb(var(--fg));
+    font-family: 'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.cm-s-graphite .CodeMirror-gutters {
+    background: rgb(var(--surface));
+    border-right: 1px solid rgb(var(--line));
+}
+
+.cm-s-graphite .CodeMirror-linenumber {
+    color: rgb(var(--fg-subtle) / 0.7);
+    padding: 0 8px 0 12px;
+    min-width: 1.75rem;
+}
+
+.cm-s-graphite .CodeMirror-activeline-background {
+    background: rgb(var(--fg) / 0.04);
+}
+
+.cm-s-graphite .CodeMirror-activeline-gutter .CodeMirror-linenumber {
+    color: rgb(var(--fg));
+}
+
+.cm-s-graphite .CodeMirror-lines {
+    padding: 12px 0;
+}
+
+.cm-s-graphite pre.CodeMirror-line,
+.cm-s-graphite pre.CodeMirror-line-like {
+    padding: 0 16px;
+}
+
+.cm-s-graphite .CodeMirror-cursor {
+    border-left: 2px solid rgb(var(--accent));
+}
+
+.cm-s-graphite div.CodeMirror-selected,
+.cm-s-graphite.CodeMirror-focused div.CodeMirror-selected,
+.cm-s-graphite .CodeMirror-line::selection,
+.cm-s-graphite .CodeMirror-line > span::selection,
+.cm-s-graphite .CodeMirror-line > span > span::selection {
+    background: rgb(var(--accent) / 0.2);
+}
+
+.cm-s-graphite .CodeMirror-matchingbracket {
+    color: rgb(var(--fg)) !important;
+    background: rgb(var(--accent) / 0.18);
+    border-radius: 2px;
+}
+
+.cm-s-graphite .cm-matchhighlight {
+    background: rgb(var(--fg) / 0.08);
+    border-radius: 2px;
+}
+
+.cm-s-graphite .cm-searching {
+    background: rgb(234 179 8 / 0.3);
+    border-radius: 2px;
+}
+
+.cm-s-graphite .CodeMirror-foldmarker {
+    color: rgb(var(--fg-muted));
+    background: rgb(var(--surface-3));
+    border-radius: 4px;
+    padding: 0 4px;
+    font-family: inherit;
+    text-shadow: none;
+}
+
+.cm-s-graphite .CodeMirror-foldgutter-open,
+.cm-s-graphite .CodeMirror-foldgutter-folded {
+    color: rgb(var(--fg-subtle));
+}
+
+.cm-s-graphite .cm-trailingspace {
+    background: rgb(239 68 68 / 0.12);
+}
+
+/* Syntax */
+.cm-s-graphite .cm-keyword { color: rgb(var(--syn-keyword)); }
+.cm-s-graphite .cm-string,
+.cm-s-graphite .cm-string-2 { color: rgb(var(--syn-string)); }
+.cm-s-graphite .cm-number { color: rgb(var(--syn-number)); }
+.cm-s-graphite .cm-comment { color: rgb(var(--syn-comment)); font-style: italic; }
+.cm-s-graphite .cm-def,
+.cm-s-graphite .cm-variable-2,
+.cm-s-graphite .cm-variable-3,
+.cm-s-graphite .cm-type { color: rgb(var(--syn-def)); }
+.cm-s-graphite .cm-property,
+.cm-s-graphite .cm-qualifier { color: rgb(var(--syn-property)); }
+.cm-s-graphite .cm-atom,
+.cm-s-graphite .cm-builtin { color: rgb(var(--syn-atom)); }
+.cm-s-graphite .cm-tag,
+.cm-s-graphite .cm-bracket { color: rgb(var(--syn-tag)); }
+.cm-s-graphite .cm-attribute { color: rgb(var(--syn-number)); }
+.cm-s-graphite .cm-meta { color: rgb(var(--syn-meta)); }
+.cm-s-graphite .cm-header { color: rgb(var(--fg)); font-weight: 600; }
+.cm-s-graphite .cm-link { color: rgb(var(--syn-def)); text-decoration: underline; }
+.cm-s-graphite .cm-operator { color: rgb(var(--fg-muted)); }
+.cm-s-graphite .cm-variable { color: rgb(var(--fg)); }
+.cm-s-graphite .cm-error { color: rgb(239 68 68); }
+
+/* Overlay scrollbars */
+.cm-s-graphite .CodeMirror-overlayscroll-vertical div,
+.cm-s-graphite .CodeMirror-overlayscroll-horizontal div {
+    background: rgb(var(--fg-subtle) / 0.45);
+    border-radius: 999px;
+}
+
+/* Search / jump-to-line dialog */
+.cm-s-graphite .CodeMirror-dialog {
+    background: rgb(var(--surface-2));
+    color: rgb(var(--fg-muted));
+    border-color: rgb(var(--line));
+    padding: 8px 16px;
+    font-family: 'Geist Variable', system-ui, sans-serif;
+    font-size: 13px;
+}
+
+.cm-s-graphite .CodeMirror-dialog input {
+    color: rgb(var(--fg));
+    background: rgb(var(--surface));
+    border: 1px solid rgb(var(--line-strong));
+    border-radius: 6px;
+    padding: 2px 8px;
+    margin-left: 6px;
+    width: 18em;
+    font-family: 'Geist Mono Variable', ui-monospace, monospace;
+}
+
+.cm-s-graphite .CodeMirror-dialog button {
+    color: rgb(var(--fg));
+    background: rgb(var(--surface-3));
+    border-radius: 6px;
+    padding: 2px 8px;
+    margin-left: 4px;
+}
+
+.cm-s-graphite .CodeMirror-search-hint {
+    color: rgb(var(--fg-subtle));
+}

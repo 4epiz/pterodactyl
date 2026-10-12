@@ -116,7 +116,7 @@ export interface Props {
     onContentChanged?: (content: string) => void;
 }
 
-const findModeByFilename = (filename: string) => {
+export const findModeByFilename = (filename: string) => {
     for (let i = 0; i < modes.length; i++) {
         const info = modes[i];
 

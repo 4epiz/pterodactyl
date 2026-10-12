@@ -6,6 +6,7 @@ Graphite is a calm, neutral theme for the Pterodactyl 1.x client area. It includ
 - floating sidebar and top bar, with the Pterodactyl logo
 - per-game artwork on server cards and the console page, picked automatically from each server's egg
 - an optional accent colour (mono by default), chosen from the account menu
+- a custom code editor that opens files in a floating window over the file manager (drag, maximize, Ctrl+S to save, unsaved-changes warning)
 - a sidebar layout that works on desktop and mobile
 - a redesigned dashboard, console and sign-in pages
 - smooth, restrained motion via Framer Motion

@@ -13,6 +13,7 @@ import tw from 'twin.macro';
 import { Button } from '@/components/elements/button/index';
 import { ServerContext } from '@/state/server';
 import useFileManagerSwr from '@/plugins/useFileManagerSwr';
+import { FileEditorProvider, useFileEditor } from '@/components/theme/editor/FloatingEditor';
 import FileManagerStatus from '@/components/server/files/FileManagerStatus';
 import MassActionsBar from '@/components/server/files/MassActionsBar';
 import UploadButton from '@/components/server/files/UploadButton';
@@ -28,6 +29,25 @@ const sortFiles = (files: FileObject[]): FileObject[] => {
         .sort((a, b) => a.name.localeCompare(b.name))
         .sort((a, b) => (a.isFile === b.isFile ? 0 : a.isFile ? 1 : -1));
     return sortedFiles.filter((file, index) => index === 0 || file.name !== sortedFiles[index - 1].name);
+};
+
+// Opens the floating editor for a new file, or the full page editor outside of it.
+const NewFileButton = ({ fallback }: { fallback: string }) => {
+    const editor = useFileEditor();
+    const directory = ServerContext.useStoreState((state) => state.files.directory);
+
+    return (
+        <NavLink
+            to={fallback}
+            onClick={(e) => {
+                if (!editor || e.metaKey || e.ctrlKey) return;
+                e.preventDefault();
+                editor.newFile(directory);
+            }}
+        >
+            <Button>New File</Button>
+        </NavLink>
+    );
 };
 
 export default () => {
@@ -60,57 +80,57 @@ export default () => {
     }
 
     return (
-        <ServerContentBlock title={'File Manager'} showFlashKey={'files'}>
-            <ErrorBoundary>
-                <div className={'flex flex-wrap-reverse md:flex-nowrap mb-4'}>
-                    <FileManagerBreadcrumbs
-                        renderLeft={
-                            <FileActionCheckbox
-                                type={'checkbox'}
-                                css={tw`mx-4`}
-                                checked={selectedFilesLength === (files?.length === 0 ? -1 : files?.length)}
-                                onChange={onSelectAllClick}
-                            />
-                        }
-                    />
-                    <Can action={'file.create'}>
-                        <div className={style.manager_actions}>
-                            <FileManagerStatus />
-                            <NewDirectoryButton />
-                            <UploadButton />
-                            <NavLink to={`/server/${id}/files/new${window.location.hash}`}>
-                                <Button>New File</Button>
-                            </NavLink>
-                        </div>
-                    </Can>
-                </div>
-            </ErrorBoundary>
-            {!files ? (
-                <Spinner size={'large'} centered />
-            ) : (
-                <>
-                    {!files.length ? (
-                        <p css={tw`text-sm text-neutral-400 text-center`}>This directory seems to be empty.</p>
-                    ) : (
-                        <CSSTransition classNames={'fade'} timeout={150} appear in>
-                            <div>
-                                {files.length > 250 && (
-                                    <div css={tw`rounded bg-yellow-400 mb-px p-3`}>
-                                        <p css={tw`text-yellow-900 text-sm text-center`}>
-                                            This directory is too large to display in the browser, limiting the output
-                                            to the first 250 files.
-                                        </p>
-                                    </div>
-                                )}
-                                {sortFiles(files.slice(0, 250)).map((file) => (
-                                    <FileObjectRow key={file.key} file={file} />
-                                ))}
-                                <MassActionsBar />
+        <FileEditorProvider onSaved={() => mutate()}>
+            <ServerContentBlock title={'File Manager'} showFlashKey={'files'}>
+                <ErrorBoundary>
+                    <div className={'flex flex-wrap-reverse md:flex-nowrap mb-4'}>
+                        <FileManagerBreadcrumbs
+                            renderLeft={
+                                <FileActionCheckbox
+                                    type={'checkbox'}
+                                    css={tw`mx-4`}
+                                    checked={selectedFilesLength === (files?.length === 0 ? -1 : files?.length)}
+                                    onChange={onSelectAllClick}
+                                />
+                            }
+                        />
+                        <Can action={'file.create'}>
+                            <div className={style.manager_actions}>
+                                <FileManagerStatus />
+                                <NewDirectoryButton />
+                                <UploadButton />
+                                <NewFileButton fallback={`/server/${id}/files/new${window.location.hash}`} />
                             </div>
-                        </CSSTransition>
-                    )}
-                </>
-            )}
-        </ServerContentBlock>
+                        </Can>
+                    </div>
+                </ErrorBoundary>
+                {!files ? (
+                    <Spinner size={'large'} centered />
+                ) : (
+                    <>
+                        {!files.length ? (
+                            <p css={tw`text-sm text-neutral-400 text-center`}>This directory seems to be empty.</p>
+                        ) : (
+                            <CSSTransition classNames={'fade'} timeout={150} appear in>
+                                <div>
+                                    {files.length > 250 && (
+                                        <div css={tw`rounded bg-yellow-400 mb-px p-3`}>
+                                            <p css={tw`text-yellow-900 text-sm text-center`}>
+                                                This directory is too large to display in the browser, limiting the
+                                                output to the first 250 files.
+                                            </p>
+                                        </div>
+                                    )}
+                                    {sortFiles(files.slice(0, 250)).map((file) => (
+                                        <FileObjectRow key={file.key} file={file} />
+                                    ))}
+                                    <MassActionsBar />
+                                </div>
+                            </CSSTransition>
+                        )}
+                    </>
+                )}
+            </ServerContentBlock>
+        </FileEditorProvider>
     );
 };

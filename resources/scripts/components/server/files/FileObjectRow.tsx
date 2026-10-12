@@ -14,6 +14,7 @@ import { usePermissions } from '@/plugins/usePermissions';
 import { join } from 'pathe';
 import { bytesToString } from '@/lib/formatters';
 import styles from './style.module.css';
+import { useFileEditor } from '@/components/theme/editor/FloatingEditor';
 
 const Clickable: React.FC<{ file: FileObject }> = memo(({ file, children }) => {
     const [canRead] = usePermissions(['file.read']);
@@ -21,6 +22,7 @@ const Clickable: React.FC<{ file: FileObject }> = memo(({ file, children }) => {
     const directory = ServerContext.useStoreState((state) => state.files.directory);
 
     const match = useRouteMatch();
+    const editor = useFileEditor();
 
     return (file.isFile && (!file.isEditable() || !canReadContents)) || (!file.isFile && !canRead) ? (
         <div className={styles.details}>{children}</div>
@@ -28,6 +30,12 @@ const Clickable: React.FC<{ file: FileObject }> = memo(({ file, children }) => {
         <NavLink
             className={styles.details}
             to={`${match.url}${file.isFile ? '/edit' : ''}#${encodePathSegments(join(directory, file.name))}`}
+            onClick={(e) => {
+                // Open files in the floating editor; modified clicks still open the full page editor.
+                if (!file.isFile || !editor || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey) return;
+                e.preventDefault();
+                editor.openFile(join(directory, file.name));
+            }}
         >
             {children}
         </NavLink>
