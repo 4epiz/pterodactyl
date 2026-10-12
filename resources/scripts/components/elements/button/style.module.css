@@ -40,13 +40,13 @@
 
 /* Ink: near-black in light mode, near-white in dark mode. */
 .primary {
-    @apply bg-ink text-ink-fg shadow-sm;
-    @apply hover:bg-ink/90 focus-visible:ring-ink/40;
+    @apply bg-accent text-accent-fg shadow-sm;
+    @apply hover:bg-accent/90 focus-visible:ring-accent/50;
 }
 
 .text {
     @apply bg-surface text-fg shadow-sm ring-1 ring-inset ring-line-strong;
-    @apply hover:bg-surface-3 focus-visible:ring-ink/30;
+    @apply hover:bg-surface-3 focus-visible:ring-accent/40;
 
     &:disabled {
         @apply hover:bg-surface;

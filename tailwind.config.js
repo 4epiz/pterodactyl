@@ -49,6 +49,15 @@ module.exports = {
                 line: { DEFAULT: v('line'), strong: v('line-strong') },
                 fg: { DEFAULT: v('fg'), muted: v('fg-muted'), subtle: v('fg-subtle') },
                 ink: { DEFAULT: v('ink'), fg: v('ink-fg') },
+                accent: { DEFAULT: v('accent'), fg: v('accent-fg'), text: v('accent-text') },
+                metric: {
+                    cpu: v('c-cpu'),
+                    memory: v('c-memory'),
+                    disk: v('c-disk'),
+                    'net-in': v('c-net-in'),
+                    'net-out': v('c-net-out'),
+                    uptime: v('c-uptime'),
+                },
             },
             fontSize: {
                 '2xs': '0.625rem',

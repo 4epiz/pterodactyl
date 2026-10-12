@@ -2,21 +2,29 @@ import React, { createContext, useCallback, useContext, useEffect, useState } fr
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 export type ResolvedTheme = 'light' | 'dark';
+export type Accent = 'blue' | 'violet' | 'emerald' | 'amber' | 'rose';
+
+export const ACCENTS: Accent[] = ['blue', 'violet', 'emerald', 'amber', 'rose'];
 
 // Must match the key used by the inline script in templates/wrapper.blade.php,
 // which applies the theme before the first paint.
 export const THEME_STORAGE_KEY = 'panel:theme';
+export const ACCENT_STORAGE_KEY = 'panel:accent';
 
 interface ThemeContextValue {
     mode: ThemeMode;
     resolved: ResolvedTheme;
     setMode: (mode: ThemeMode, origin?: { x: number; y: number }) => void;
+    accent: Accent;
+    setAccent: (accent: Accent) => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
     mode: 'system',
     resolved: 'dark',
     setMode: () => undefined,
+    accent: 'blue',
+    setAccent: () => undefined,
 });
 
 const media = (): MediaQueryList | null =>
@@ -32,6 +40,18 @@ const readStoredMode = (): ThemeMode => {
         // Storage can be unavailable (private mode, blocked cookies); fall through.
     }
     return 'system';
+};
+
+const readStoredAccent = (): Accent => {
+    try {
+        const value = window.localStorage.getItem(ACCENT_STORAGE_KEY) as Accent | null;
+        if (value && ACCENTS.includes(value)) {
+            return value;
+        }
+    } catch (e) {
+        // Fall through to the default accent.
+    }
+    return 'blue';
 };
 
 const resolve = (mode: ThemeMode): ResolvedTheme => {
@@ -66,6 +86,18 @@ export const readToken = (name: string, alpha = 1): string => {
 export const ThemeProvider: React.FC = ({ children }) => {
     const [mode, setModeState] = useState<ThemeMode>(readStoredMode);
     const [resolved, setResolved] = useState<ResolvedTheme>(() => resolve(readStoredMode()));
+    const [accent, setAccentState] = useState<Accent>(readStoredAccent);
+
+    const setAccent = useCallback((next: Accent) => {
+        try {
+            window.localStorage.setItem(ACCENT_STORAGE_KEY, next);
+        } catch (e) {
+            // Not persisted, still applied for this page view.
+        }
+        document.documentElement.dataset.accent = next;
+        setAccentState(next);
+        window.dispatchEvent(new CustomEvent('panel:accent', { detail: next }));
+    }, []);
 
     const setMode = useCallback((next: ThemeMode, origin?: { x: number; y: number }) => {
         try {
@@ -126,9 +158,12 @@ export const ThemeProvider: React.FC = ({ children }) => {
         if (document.documentElement.dataset.theme !== resolved) {
             applyToDocument(resolved);
         }
+        document.documentElement.dataset.accent = accent;
     }, []);
 
-    return <ThemeContext.Provider value={{ mode, resolved, setMode }}>{children}</ThemeContext.Provider>;
+    return (
+        <ThemeContext.Provider value={{ mode, resolved, setMode, accent, setAccent }}>{children}</ThemeContext.Provider>
+    );
 };
 
 export const useTheme = () => useContext(ThemeContext);

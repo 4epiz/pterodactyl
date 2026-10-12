@@ -22,7 +22,7 @@ export default forwardRef<HTMLFormElement, Props>(({ title, subtitle, className:
                     <span className={'flex items-center gap-2.5'}>
                         <span
                             className={
-                                'flex h-8 w-8 items-center justify-center rounded-lg bg-ink text-ink-fg shadow-card'
+                                'flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-accent-fg shadow-card'
                             }
                         >
                             <ServerIcon className={'h-4 w-4'} strokeWidth={1.8} />

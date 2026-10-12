@@ -6,7 +6,7 @@ import { CSSTransition } from 'react-transition-group';
 import tw from 'twin.macro';
 
 const BarFill = styled.div`
-    ${tw`h-full bg-ink rounded-r-full`};
+    ${tw`h-full bg-accent rounded-r-full`};
     transition: 250ms ease-in-out;
 `;
 

@@ -78,29 +78,31 @@ function getOptions(opts?: DeepPartial<ChartOptions<'line'>> | undefined): Chart
     return deepmerge(baseOptions(), opts || {});
 }
 
-// Dataset colours by index: primary ink line, then a quieter secondary line.
-const palette = ['ink', 'fg-subtle'];
+// Default dataset colours by index (CSS variable names without the "--").
+const defaultPalette = ['accent', 'fg-subtle'];
 
-function colorize(dataset: ChartDataset<'line'>, index: number): ChartDataset<'line'> {
-    const token = palette[index % palette.length];
+const colorize =
+    (palette: string[]) =>
+    (dataset: ChartDataset<'line'>, index: number): ChartDataset<'line'> => {
+        const token = palette[index % palette.length];
 
-    return {
-        ...dataset,
-        borderColor: dataset.borderColor ?? readToken(token, index ? 0.9 : 1),
-        backgroundColor:
-            dataset.backgroundColor ??
-            ((context: { chart: ChartJS }) => {
-                const { ctx, chartArea } = context.chart;
-                if (!chartArea) return 'transparent';
+        return {
+            ...dataset,
+            borderColor: dataset.borderColor ?? readToken(token),
+            backgroundColor:
+                dataset.backgroundColor ??
+                ((context: { chart: ChartJS }) => {
+                    const { ctx, chartArea } = context.chart;
+                    if (!chartArea) return 'transparent';
 
-                const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-                gradient.addColorStop(0, readToken(token, index ? 0.08 : 0.16));
-                gradient.addColorStop(1, readToken(token, 0));
+                    const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                    gradient.addColorStop(0, readToken(token, 0.28));
+                    gradient.addColorStop(1, readToken(token, 0));
 
-                return gradient;
-            }),
-    } as ChartDataset<'line'>;
-}
+                    return gradient;
+                }),
+        } as ChartDataset<'line'>;
+    };
 
 type ChartDatasetCallback = (value: ChartDataset<'line'>, index: number) => ChartDataset<'line'>;
 
@@ -132,6 +134,8 @@ interface UseChartOptions {
     sets: number;
     options?: DeepPartial<ChartOptions<'line'>> | number | undefined;
     callback?: ChartDatasetCallback | undefined;
+    // CSS variable names used for each dataset's colour, by index.
+    colors?: string[];
 }
 
 function useChart(label: string, opts?: UseChartOptions) {
@@ -164,14 +168,15 @@ function useChart(label: string, opts?: UseChartOptions) {
             })
         );
 
-    const themed = { ...data, datasets: data.datasets.map(colorize) };
+    const themed = { ...data, datasets: data.datasets.map(colorize(opts?.colors || defaultPalette)) };
 
     return { props: { data: themed, options }, push, clear };
 }
 
-function useChartTickLabel(label: string, max: number, tickLabel: string, roundTo?: number) {
+function useChartTickLabel(label: string, max: number, tickLabel: string, roundTo?: number, color?: string) {
     return useChart(label, {
         sets: 1,
+        colors: color ? [color] : undefined,
         options: {
             scales: {
                 y: {

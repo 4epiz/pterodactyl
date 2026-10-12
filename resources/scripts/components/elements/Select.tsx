@@ -37,8 +37,8 @@ const Select = styled.select<Props>`
             }
 
             &:focus {
-                border-color: rgb(var(--ink) / 0.55);
-                box-shadow: 0 0 0 3px rgb(var(--ink) / 0.1);
+                border-color: rgb(var(--accent) / 0.7);
+                box-shadow: 0 0 0 3px rgb(var(--accent) / 0.15);
             }
         `};
 `;
