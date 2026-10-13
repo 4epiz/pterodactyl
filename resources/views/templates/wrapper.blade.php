@@ -3,16 +3,20 @@
     <head>
         <script>
             (function () {
-                // Applies the saved light/dark theme before the first paint to avoid a flash.
-                // Keep the storage key in sync with components/theme/ThemeProvider.tsx.
-                var mode = 'system';
-                try { mode = localStorage.getItem('panel:theme') || 'system'; } catch (e) {}
-                if (mode === 'system') {
+                // Applies the light/dark theme and accent before the first paint to avoid a flash.
+                // Defaults and locks come from Admin > Theme. Keep the storage keys and logic in
+                // sync with components/theme/ThemeProvider.tsx.
+                var cfg = @json(data_get($siteConfiguration ?? [], 'theme.appearance')) || {};
+                var mode = cfg.default_mode || 'system';
+                var accent = cfg.accent || 'lime';
+                try {
+                    if (cfg.allow_mode_change !== false) mode = localStorage.getItem('panel:theme') || mode;
+                    if (cfg.allow_accent_change !== false) accent = localStorage.getItem('panel:accent') || accent;
+                } catch (e) {}
+                if (mode !== 'light' && mode !== 'dark') {
                     mode = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
                 }
-                document.documentElement.setAttribute('data-theme', mode === 'light' ? 'light' : 'dark');
-                var accent = 'lime';
-                try { accent = localStorage.getItem('panel:accent') || 'lime'; } catch (e) {}
+                document.documentElement.setAttribute('data-theme', mode);
                 if (/^(lime|mono|blue|violet|emerald|amber|rose)$/.test(accent)) {
                     document.documentElement.setAttribute('data-accent', accent);
                 }

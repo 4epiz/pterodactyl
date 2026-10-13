@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { themeConfig } from '@/components/theme/config';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 export type ResolvedTheme = 'light' | 'dark';
@@ -30,7 +31,12 @@ const ThemeContext = createContext<ThemeContextValue>({
 const media = (): MediaQueryList | null =>
     typeof window !== 'undefined' && window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 
+// Admin defaults apply until the user picks their own, and always when the
+// admin has turned the choice off (Admin > Theme).
 const readStoredMode = (): ThemeMode => {
+    const { default_mode: fallback, allow_mode_change: allowed } = themeConfig().appearance;
+    if (!allowed) return fallback;
+
     try {
         const value = window.localStorage.getItem(THEME_STORAGE_KEY);
         if (value === 'light' || value === 'dark' || value === 'system') {
@@ -39,10 +45,14 @@ const readStoredMode = (): ThemeMode => {
     } catch (e) {
         // Storage can be unavailable (private mode, blocked cookies); fall through.
     }
-    return 'system';
+    return fallback;
 };
 
 const readStoredAccent = (): Accent => {
+    const { accent, allow_accent_change: allowed } = themeConfig().appearance;
+    const fallback = ACCENTS.includes(accent as Accent) ? (accent as Accent) : 'lime';
+    if (!allowed) return fallback;
+
     try {
         const value = window.localStorage.getItem(ACCENT_STORAGE_KEY) as Accent | null;
         if (value && ACCENTS.includes(value)) {
@@ -51,7 +61,7 @@ const readStoredAccent = (): Accent => {
     } catch (e) {
         // Fall through to the default accent.
     }
-    return 'lime';
+    return fallback;
 };
 
 const resolve = (mode: ThemeMode): ResolvedTheme => {

@@ -10,6 +10,7 @@ import tw from 'twin.macro';
 import Button from '@/components/elements/Button';
 import Reaptcha from 'reaptcha';
 import useFlash from '@/plugins/useFlash';
+import { themeConfig } from '@/components/theme/config';
 
 interface Values {
     username: string;
@@ -75,8 +76,8 @@ const LoginContainer = ({ history }: RouteComponentProps) => {
         >
             {({ isSubmitting, setSubmitting, submitForm }) => (
                 <LoginFormContainer
-                    title={'Sign in'}
-                    subtitle={'Welcome back. Enter your details to manage your servers.'}
+                    title={themeConfig().branding.login_title || 'Sign in'}
+                    subtitle={themeConfig().branding.login_subtitle}
                     css={tw`w-full flex`}
                 >
                     <Field light type={'text'} label={'Username or Email'} name={'username'} disabled={isSubmitting} />

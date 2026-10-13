@@ -6,6 +6,7 @@ Graphite is a calm, neutral theme for the Pterodactyl 1.x client area. It includ
 - floating sidebar and top bar, with the Pterodactyl logo
 - per-game artwork on server cards and the console page, picked automatically from each server's egg
 - a lime accent by default, with mono, blue, violet, emerald, amber and rose to choose from in the account menu
+- an **Admin > Theme** page to set the accent, announcements, branding, sidebar links and game artwork without editing code
 - a custom code editor that opens files in a floating window over the file manager (drag, maximize, Ctrl+S to save, unsaved-changes warning)
 - a sidebar layout that works on desktop and mobile
 - a redesigned dashboard, console and sign-in pages
@@ -40,6 +41,20 @@ The installer:
 Hard-refresh your browser afterwards.
 
 Add `--no-build` to skip step 5 when you want to install other addons first and build once at the end.
+
+## Admin > Theme
+
+After installing, a **Theme** page appears in the admin area sidebar (`/admin/theme`). Changes apply the next time a page is loaded; no rebuild is needed.
+
+| Section | Settings |
+|---|---|
+| Announcement | A banner shown at the top of every client-area page: style (info, success, warning, danger), title, message, an optional link, and whether users can dismiss it. Editing the announcement shows it again to users who dismissed it. |
+| Appearance | The default accent colour, whether users may pick their own, the default theme (light, dark or follow the device), whether users may switch it, and the dashboard greeting and featured server. |
+| Branding | Logo URL, the subtitle under the panel name, the sign-in heading and text, and footer text shown next to the Pterodactyl credit. The panel name itself is still set under Admin > Settings. |
+| Sidebar links | Billing, support, status page and Discord links. Filled-in links appear in the client sidebar and open in a new tab. |
+| Game artwork | An image URL per game, replacing the built-in illustration for that game. |
+
+Settings are stored as one row (`settings::theme:config`) in the panel's `settings` table, so they survive panel updates and theme reinstalls. Links and image URLs must start with `http://`, `https://` or `/`.
 
 ## Uninstall
 
@@ -95,7 +110,7 @@ All colours live in `resources/scripts/assets/tailwind.css` as space-separated R
 
 ### Accent colours
 
-The accent is lime by default. Users can pick mono (black in light mode, white in dark mode), blue, violet, emerald, amber or rose from the account menu at the bottom of the sidebar; the choice is remembered per browser. Each accent is defined near the end of `tailwind.css` as `--accent` (fills), `--accent-fg` (text on fills) and `--accent-text` (accent coloured text), with separate values for the dark theme. To add one, add a `[data-accent='…']` block there, add it to `ACCENTS` in `components/theme/ThemeProvider.tsx` and to the inline script in `resources/views/templates/wrapper.blade.php`.
+The accent is lime by default; change it under Admin > Theme. Unless that page disables it, users can pick mono (black in light mode, white in dark mode), blue, violet, emerald, amber or rose from the account menu at the bottom of the sidebar; the choice is remembered per browser. Each accent is defined near the end of `tailwind.css` as `--accent` (fills), `--accent-fg` (text on fills) and `--accent-text` (accent coloured text), with separate values for the dark theme. To add one, add a `[data-accent='…']` block there, add it to `ACCENTS` in `components/theme/ThemeProvider.tsx`, to the inline script in `resources/views/templates/wrapper.blade.php` and to `ACCENTS` in `app/Services/Theme/ThemeSettingsService.php` (plus a swatch colour in `resources/views/admin/theme/index.blade.php`).
 
 ### Game artwork
 
@@ -103,7 +118,9 @@ Server cards, the console header and the sidebar show artwork for the server's g
 
 The illustrations are original artwork drawn for this theme. They evoke each genre without using any game's copyrighted or trademarked art, which is what lets the theme be sold.
 
-To use your own images instead, for example official artwork you have permission to use:
+To use your own images instead, for example official artwork you have permission to use, enter their URLs under **Admin > Theme > Game artwork**. Images placed in the panel's `public` folder can be referenced as `/themes/graphite/games/minecraft.jpg`.
+
+Alternatively, bake them into the build:
 
 1. Put the image in the panel's `public` folder, e.g. `public/themes/graphite/games/minecraft.jpg`. A wide image of about 1200×600 works best.
 2. Map the game to it in `customGameImages` in `resources/scripts/components/theme/games.ts`:

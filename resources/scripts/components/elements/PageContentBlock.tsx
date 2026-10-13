@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import ContentContainer from '@/components/elements/ContentContainer';
 import tw from 'twin.macro';
 import FlashMessageRender from '@/components/FlashMessageRender';
+import { themeConfig } from '@/components/theme/config';
 
 export interface PageContentBlockProps {
     title?: string;
@@ -33,6 +34,9 @@ const PageContentBlock: React.FC<PageContentBlockProps> = ({ title, showFlashKey
                         Pterodactyl&reg;
                     </a>
                     &nbsp;&copy; 2015 - {new Date().getFullYear()}
+                    {themeConfig().branding.footer_text && (
+                        <span className={'ml-3 border-l border-line pl-3'}>{themeConfig().branding.footer_text}</span>
+                    )}
                 </p>
             </ContentContainer>
         </>

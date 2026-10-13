@@ -4,6 +4,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronRightIcon, MenuAlt2Icon, XIcon } from '@heroicons/react/outline';
 import SearchContainer from '@/components/dashboard/search/SearchContainer';
 import ThemeToggle from '@/components/theme/ThemeToggle';
+import Announcement from '@/components/theme/Announcement';
+import { themeConfig } from '@/components/theme/config';
 
 export interface Crumb {
     label: React.ReactNode;
@@ -134,8 +136,9 @@ export default ({ sidebar, crumbs = [], children }: Props) => {
                         <Breadcrumbs crumbs={crumbs} />
                     </div>
                     <SearchContainer />
-                    <ThemeToggle />
+                    {themeConfig().appearance.allow_mode_change && <ThemeToggle />}
                 </header>
+                <Announcement />
                 <main>{children}</main>
             </div>
         </div>

@@ -4,13 +4,14 @@ namespace Pterodactyl\Http\ViewComposers;
 
 use Illuminate\View\View;
 use Pterodactyl\Services\Helpers\AssetHashService;
+use Pterodactyl\Services\Theme\ThemeSettingsService;
 
 class AssetComposer
 {
     /**
      * AssetComposer constructor.
      */
-    public function __construct(private AssetHashService $assetHashService)
+    public function __construct(private AssetHashService $assetHashService, private ThemeSettingsService $theme)
     {
     }
 
@@ -27,6 +28,7 @@ class AssetComposer
                 'enabled' => config('recaptcha.enabled', false),
                 'siteKey' => config('recaptcha.website_key') ?? '',
             ],
+            'theme' => $this->theme->forFrontend(),
         ]);
     }
 }
