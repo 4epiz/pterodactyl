@@ -21,7 +21,7 @@ interface Props {
 const ease = [0.22, 1, 0.36, 1];
 
 export const Breadcrumbs = ({ crumbs }: { crumbs: Crumb[] }) => (
-    <nav aria-label={'Breadcrumb'} className={'flex min-w-0 items-center gap-1.5 text-sm'}>
+    <nav aria-label={'Breadcrumb'} className={'flex min-w-0 items-center gap-1.5 text-[15px]'}>
         {crumbs.map((crumb, index) => {
             const last = index === crumbs.length - 1;
 
@@ -60,12 +60,18 @@ export default ({ sidebar, crumbs = [], children }: Props) => {
     }, [open]);
 
     return (
-        <div className={'min-h-screen bg-app'}>
+        <div className={'relative min-h-screen bg-app'}>
+            {/* Faint accent wash behind the top of the page. */}
+            <div
+                aria-hidden
+                className={'pointer-events-none absolute inset-x-0 top-0 h-[32rem]'}
+                style={{
+                    background: 'radial-gradient(60rem 28rem at 72% -12%, rgb(var(--accent) / 0.07), transparent 65%)',
+                }}
+            />
             {/* Floating sidebar (desktop). */}
             <aside
-                className={
-                    'fixed inset-y-3 left-3 z-30 hidden w-64 overflow-hidden rounded-2xl border border-line bg-surface shadow-card lg:block'
-                }
+                className={'panel fixed inset-y-4 left-4 z-30 hidden w-[15.5rem] overflow-hidden rounded-3xl lg:block'}
             >
                 {sidebar('desktop')}
             </aside>
@@ -84,7 +90,7 @@ export default ({ sidebar, crumbs = [], children }: Props) => {
                         />
                         <motion.aside
                             className={
-                                'absolute inset-y-3 left-3 w-[17rem] max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-2xl border border-line bg-surface shadow-pop'
+                                'panel absolute inset-y-3 left-3 w-[17rem] max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-3xl'
                             }
                             initial={{ x: '-110%' }}
                             animate={{ x: 0 }}
@@ -107,11 +113,11 @@ export default ({ sidebar, crumbs = [], children }: Props) => {
                 )}
             </AnimatePresence>
 
-            <div className={'px-3 pt-3 lg:pl-[17.5rem]'}>
+            <div className={'relative px-3 pt-3 lg:pl-[17.5rem] lg:pr-4 lg:pt-4'}>
                 {/* Floating top bar. */}
                 <header
                     className={
-                        'sticky top-3 z-20 flex h-14 items-center gap-3 rounded-2xl border border-line bg-surface/80 px-3 shadow-card backdrop-blur-xl sm:px-4'
+                        'sticky top-3 z-20 flex h-[3.75rem] items-center gap-2.5 rounded-2xl bg-surface/75 pl-3 pr-2.5 shadow-card backdrop-blur-xl sm:pl-5 lg:top-4'
                     }
                 >
                     <button

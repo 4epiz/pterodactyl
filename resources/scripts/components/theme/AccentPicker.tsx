@@ -5,6 +5,7 @@ import { Accent, ACCENTS, useTheme } from '@/components/theme/ThemeProvider';
 
 // Swatch colours match the light theme values in assets/tailwind.css.
 const swatch: Record<Accent, string> = {
+    lime: '#c4ee26',
     mono: 'linear-gradient(135deg, #18181b 50%, #e4e4e7 50%)',
     blue: '#2563eb',
     violet: '#7c3aed',

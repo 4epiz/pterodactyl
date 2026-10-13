@@ -10,14 +10,14 @@ interface Props {
     className?: string;
 }
 
-export const meterTone = (value: number | null, color = 'bg-accent') =>
+export const meterTone = (value: number | null, color = 'bg-fg') =>
     value === null ? 'bg-fg-subtle/40' : value >= 0.9 ? 'bg-red-500' : value >= 0.8 ? 'bg-amber-500' : color;
 
 export default ({ value, color, className }: Props) => {
     const width = value === null ? 0 : Math.min(1, Math.max(0, value));
 
     return (
-        <div className={classNames('h-1 w-full overflow-hidden rounded-full bg-surface-3', className)}>
+        <div className={classNames('h-1 w-full overflow-hidden rounded-full bg-fg/[0.08]', className)}>
             <motion.div
                 className={classNames('h-full rounded-full', meterTone(value, color))}
                 initial={false}

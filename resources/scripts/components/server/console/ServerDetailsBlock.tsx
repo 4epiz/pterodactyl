@@ -109,7 +109,7 @@ const ServerDetailsBlock = ({ className }: { className?: string }) => {
     const ratio = (value: number, limit: number) => (offline || !limit ? null : value / limit);
 
     return (
-        <div className={classNames('flex flex-col divide-y divide-line rounded-xl bg-surface shadow-card', className)}>
+        <div className={classNames('panel flex flex-col divide-y divide-line rounded-[1.375rem]', className)}>
             <CopyOnClick text={allocation}>
                 <div className={'group flex flex-1 items-center gap-3 px-4 py-3'}>
                     <span

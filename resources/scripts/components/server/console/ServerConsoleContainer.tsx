@@ -38,34 +38,33 @@ const ServerHero = () => {
     return (
         <div
             data-theme-scope={'dark'}
-            className={'relative mb-4 overflow-hidden rounded-2xl border border-line shadow-card'}
-            style={{ background: 'rgb(var(--term-bg))' }}
+            className={'relative mb-3.5 overflow-hidden rounded-3xl border border-white/[0.06] bg-app'}
         >
             {/* Art fills the right side and fades into the dark panel behind the text. */}
-            <div
-                className={'absolute inset-y-0 right-0 w-full sm:aspect-[2/1] sm:w-auto'}
-                style={{
-                    maskImage: 'linear-gradient(to right, transparent, black 40%)',
-                    WebkitMaskImage: 'linear-gradient(to right, transparent, black 40%)',
-                }}
-            >
+            <div className={'absolute inset-y-0 right-0 w-full md:w-[65%]'}>
                 <GameArt game={game} seed={server.uuid} align={'center'} className={'h-full w-full'} />
             </div>
             <div
-                className={'absolute inset-0 sm:hidden'}
-                style={{ background: 'linear-gradient(to top, rgb(0 0 0 / 0.75), rgb(0 0 0 / 0.35))' }}
+                className={'absolute inset-0'}
+                style={{
+                    background:
+                        'linear-gradient(90deg, rgb(7 7 8) 0%, rgb(7 7 8 / 0.92) 32%, rgb(7 7 8 / 0.5) 62%, rgb(7 7 8 / 0.1) 100%)',
+                }}
             />
-            <div className={'relative flex min-h-[11rem] flex-col justify-end p-5 sm:p-6 sm:pr-[42%] lg:pr-[38%]'}>
-                <p className={'text-xs font-medium text-white/60'}>{server.eggName || gameLabels[game]}</p>
-                <div className={'mt-1 flex flex-wrap items-center gap-3'}>
-                    <h1 className={'truncate text-2xl font-semibold tracking-tight text-white'}>{server.name}</h1>
+            <div className={'relative flex min-h-[13rem] flex-col justify-end p-6 sm:p-8 md:pr-[45%]'}>
+                <p className={'text-xs font-semibold uppercase tracking-[0.08em] text-accent-text'}>
+                    {gameLabels[game]}
+                    {server.eggName && server.eggName !== gameLabels[game] && ` · ${server.eggName}`}
+                </p>
+                <div className={'mt-2 flex flex-wrap items-center gap-3'}>
+                    <h1 className={'truncate text-3xl font-semibold tracking-[-0.03em] text-white'}>{server.name}</h1>
                     <ServerStatus />
                 </div>
                 {server.description && (
-                    <p className={'mt-1 text-sm text-white/70 line-clamp-2'}>{server.description}</p>
+                    <p className={'mt-1.5 text-sm text-white/65 line-clamp-2'}>{server.description}</p>
                 )}
                 <Can action={['control.start', 'control.stop', 'control.restart']} matchAny>
-                    <PowerButtons className={'mt-5 flex w-full max-w-md gap-2'} />
+                    <PowerButtons className={'mt-6 flex w-full max-w-md gap-2'} />
                 </Can>
             </div>
         </div>
@@ -90,7 +89,7 @@ const ServerConsoleContainer = () => {
                 </Alert>
             )}
             <ServerHero />
-            <div className={'mb-4 grid grid-cols-1 gap-4 lg:grid-cols-12'}>
+            <div className={'mb-3.5 grid grid-cols-1 gap-3.5 lg:grid-cols-12'}>
                 <div className={'flex min-w-0 lg:col-span-8 xl:col-span-9'}>
                     <Spinner.Suspense>
                         <Console />
@@ -98,7 +97,7 @@ const ServerConsoleContainer = () => {
                 </div>
                 <ServerDetailsBlock className={'lg:col-span-4 xl:col-span-3'} />
             </div>
-            <div className={'grid grid-cols-1 gap-4 md:grid-cols-3'}>
+            <div className={'grid grid-cols-1 gap-3.5 md:grid-cols-3'}>
                 <Spinner.Suspense>
                     <StatGraphs />
                 </Spinner.Suspense>

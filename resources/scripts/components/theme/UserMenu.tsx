@@ -107,7 +107,7 @@ export default ({ instance }: { instance: string }) => {
                 aria-expanded={open}
                 onClick={() => setOpen((value) => !value)}
                 className={
-                    'flex w-full items-center gap-3 rounded-xl p-2 text-left transition-colors hover:bg-surface-3'
+                    'flex w-full items-center gap-3 rounded-2xl border border-line bg-surface-0 p-2.5 text-left transition-colors hover:border-line-strong'
                 }
             >
                 <span className={'h-8 w-8 flex-none overflow-hidden rounded-full ring-1 ring-line'}>

@@ -2,9 +2,9 @@ import React, { createContext, useCallback, useContext, useEffect, useState } fr
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 export type ResolvedTheme = 'light' | 'dark';
-export type Accent = 'mono' | 'blue' | 'violet' | 'emerald' | 'amber' | 'rose';
+export type Accent = 'lime' | 'mono' | 'blue' | 'violet' | 'emerald' | 'amber' | 'rose';
 
-export const ACCENTS: Accent[] = ['mono', 'blue', 'violet', 'emerald', 'amber', 'rose'];
+export const ACCENTS: Accent[] = ['lime', 'mono', 'blue', 'violet', 'emerald', 'amber', 'rose'];
 
 // Must match the key used by the inline script in templates/wrapper.blade.php,
 // which applies the theme before the first paint.
@@ -23,7 +23,7 @@ const ThemeContext = createContext<ThemeContextValue>({
     mode: 'system',
     resolved: 'dark',
     setMode: () => undefined,
-    accent: 'mono',
+    accent: 'lime',
     setAccent: () => undefined,
 });
 
@@ -51,7 +51,7 @@ const readStoredAccent = (): Accent => {
     } catch (e) {
         // Fall through to the default accent.
     }
-    return 'mono';
+    return 'lime';
 };
 
 const resolve = (mode: ThemeMode): ResolvedTheme => {

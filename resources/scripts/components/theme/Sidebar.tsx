@@ -26,14 +26,14 @@ export const NavItem = ({ to, match, exact, icon: Icon, label, layoutGroup }: Na
             to={to}
             exact={exact}
             className={classNames(
-                'group relative flex h-9 items-center gap-3 rounded-lg px-2.5 text-sm no-underline transition-colors duration-150',
+                'group relative flex h-10 items-center gap-3 rounded-xl px-3 text-[14px] no-underline transition-colors duration-150',
                 active ? 'text-fg' : 'text-fg-muted hover:text-fg'
             )}
         >
             {active && (
                 <motion.span
                     layoutId={`${layoutGroup}-active`}
-                    className={'absolute inset-0 rounded-lg bg-surface-3'}
+                    className={'absolute inset-0 rounded-xl bg-surface-3 shadow-card'}
                     transition={{ type: 'spring', stiffness: 500, damping: 40 }}
                 />
             )}
@@ -50,9 +50,9 @@ export const NavItem = ({ to, match, exact, icon: Icon, label, layoutGroup }: Na
 };
 
 export const NavSection = ({ title, children }: { title?: string; children: React.ReactNode }) => (
-    <div className={'mt-5 first:mt-0'}>
-        {title && <p className={'mb-1 px-2.5 text-xs font-medium text-fg-subtle'}>{title}</p>}
-        <nav className={'flex flex-col gap-0.5'}>{children}</nav>
+    <div className={'mt-6 first:mt-1'}>
+        {title && <p className={'mb-1.5 px-3 text-[11px] font-medium text-fg-subtle'}>{title}</p>}
+        <nav className={'flex flex-col gap-1'}>{children}</nav>
     </div>
 );
 
@@ -62,7 +62,10 @@ export const Brand = ({ className }: { className?: string }) => {
     return (
         <Link to={'/'} className={classNames('flex min-w-0 items-center gap-2.5 no-underline', className)}>
             <img src={'/assets/svgs/pterodactyl.svg'} alt={''} className={'h-8 w-8 flex-none'} />
-            <span className={'truncate text-[15px] font-semibold tracking-tight text-fg'}>{name}</span>
+            <span className={'min-w-0'}>
+                <span className={'block truncate text-[15px] font-semibold tracking-tight text-fg'}>{name}</span>
+                <span className={'block text-[11px] text-fg-subtle'}>Control panel</span>
+            </span>
         </Link>
     );
 };
@@ -77,12 +80,12 @@ interface SidebarProps {
 
 const Sidebar = ({ header, children, instance }: SidebarProps) => (
     <div className={'flex h-full flex-col'}>
-        <div className={'flex h-16 flex-none items-center px-4'}>
+        <div className={'flex h-[4.5rem] flex-none items-center px-5'}>
             <Brand />
         </div>
-        {header && <div className={'px-3 pb-3'}>{header}</div>}
-        <div className={'flex-1 overflow-y-auto px-3 pb-3'}>{children}</div>
-        <div className={'flex-none border-t border-line p-2'}>
+        {header && <div className={'px-3.5 pb-3'}>{header}</div>}
+        <div className={'flex-1 overflow-y-auto px-3.5 pb-3'}>{children}</div>
+        <div className={'flex-none p-2.5'}>
             <UserMenu instance={instance} />
         </div>
     </div>

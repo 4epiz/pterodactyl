@@ -5,7 +5,7 @@ Graphite is a calm, neutral theme for the Pterodactyl 1.x client area. It includ
 - light and dark themes with a Light / Dark / System switcher (remembered per browser, no flash on load)
 - floating sidebar and top bar, with the Pterodactyl logo
 - per-game artwork on server cards and the console page, picked automatically from each server's egg
-- an optional accent colour (mono by default), chosen from the account menu
+- a lime accent by default, with mono, blue, violet, emerald, amber and rose to choose from in the account menu
 - a custom code editor that opens files in a floating window over the file manager (drag, maximize, Ctrl+S to save, unsaved-changes warning)
 - a sidebar layout that works on desktop and mobile
 - a redesigned dashboard, console and sign-in pages
@@ -95,7 +95,7 @@ All colours live in `resources/scripts/assets/tailwind.css` as space-separated R
 
 ### Accent colours
 
-The accent is mono (black in light mode, white in dark mode) by default. Users can pick blue, violet, emerald, amber or rose from the account menu at the bottom of the sidebar; the choice is remembered per browser. Each accent is defined near the end of `tailwind.css` as `--accent` (fills), `--accent-fg` (text on fills) and `--accent-text` (accent coloured text), with separate values for the dark theme. To add one, add a `[data-accent='…']` block there, add it to `ACCENTS` in `components/theme/ThemeProvider.tsx` and to the inline script in `resources/views/templates/wrapper.blade.php`.
+The accent is lime by default. Users can pick mono (black in light mode, white in dark mode), blue, violet, emerald, amber or rose from the account menu at the bottom of the sidebar; the choice is remembered per browser. Each accent is defined near the end of `tailwind.css` as `--accent` (fills), `--accent-fg` (text on fills) and `--accent-text` (accent coloured text), with separate values for the dark theme. To add one, add a `[data-accent='…']` block there, add it to `ACCENTS` in `components/theme/ThemeProvider.tsx` and to the inline script in `resources/views/templates/wrapper.blade.php`.
 
 ### Game artwork
 
