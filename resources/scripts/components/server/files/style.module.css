@@ -14,12 +14,23 @@
     }
 }
 
+/* Rows sit together inside one panel (see .file_list). */
+.file_list {
+    @apply rounded-[1.375rem] overflow-hidden;
+    background-image: linear-gradient(180deg, rgb(var(--surface)), rgb(var(--surface-0)));
+    box-shadow: inset 0 1px 0 rgb(var(--highlight) / var(--highlight-alpha)), 0 0 0 1px rgb(var(--line));
+}
+
 .file_row {
-    @apply flex items-center cursor-pointer bg-neutral-700 rounded-sm mb-px text-sm no-underline;
-    @apply hover:text-neutral-100 hover:bg-neutral-600;
+    @apply flex items-center cursor-pointer text-sm no-underline transition-colors duration-100;
+    @apply hover:bg-fg/[0.035];
+
+    & + .file_row {
+        border-top: 1px solid rgb(var(--line));
+    }
 
     & > .details {
-        @apply flex flex-1 items-center text-neutral-300 no-underline px-4 py-2 overflow-hidden truncate;
+        @apply flex flex-1 items-center text-fg no-underline px-4 py-2.5 overflow-hidden truncate;
 
         &:not(a) {
             @apply cursor-default;

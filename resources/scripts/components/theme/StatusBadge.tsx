@@ -2,6 +2,15 @@ import React from 'react';
 import classNames from 'classnames';
 import { StatusTone } from '@/components/theme/status';
 
+// Text colour used when the badge sits on artwork (always a dark glass chip).
+const overlayTones: Record<StatusTone, string> = {
+    running: 'text-emerald-300',
+    starting: 'text-amber-300',
+    offline: 'text-zinc-300',
+    error: 'text-red-300',
+    unknown: 'text-zinc-300',
+};
+
 const tones: Record<StatusTone, string> = {
     running: 'text-emerald-700 bg-emerald-500/10 dark:text-emerald-300',
     starting: 'text-amber-700 bg-amber-500/10 dark:text-amber-300',
@@ -22,7 +31,12 @@ export default ({ tone, label, variant = 'default', className }: Props) => (
     <span
         className={classNames(
             'inline-flex flex-none items-center rounded-md px-2 py-0.5 text-xs font-medium capitalize',
-            variant === 'overlay' ? 'bg-[rgba(0,0,0,0.45)] text-white backdrop-blur-md' : tones[tone],
+            variant === 'overlay'
+                ? classNames(
+                      'rounded-full bg-[rgba(10,10,12,0.55)] px-2.5 font-semibold backdrop-blur-md',
+                      overlayTones[tone]
+                  )
+                : tones[tone],
             className
         )}
     >

@@ -32,7 +32,7 @@ export default () => {
             crumbs={crumbs}
             sidebar={(instance) => (
                 <Sidebar instance={instance}>
-                    <NavSection>
+                    <NavSection title={'Menu'}>
                         <NavItem to={'/'} exact icon={ViewGridIcon} label={'Servers'} layoutGroup={instance} />
                     </NavSection>
                     <NavSection title={'Account'}>

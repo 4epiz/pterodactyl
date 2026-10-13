@@ -20,7 +20,7 @@
 
 /* The console stays dark in both themes, like a real terminal. */
 .terminal {
-    @apply flex flex-col w-full overflow-hidden rounded-xl;
+    @apply flex flex-col w-full overflow-hidden rounded-[1.375rem];
     background: rgb(var(--term-bg));
     box-shadow: 0 1px 2px rgb(0 0 0 / 0.08), 0 0 0 1px rgb(var(--term-line));
 
@@ -83,5 +83,7 @@
 }
 
 .chart_container {
-    @apply bg-surface rounded-xl shadow-card relative overflow-hidden;
+    @apply rounded-[1.375rem] relative overflow-hidden;
+    background-image: linear-gradient(180deg, rgb(var(--surface)), rgb(var(--surface-0)));
+    box-shadow: inset 0 1px 0 rgb(var(--highlight) / var(--highlight-alpha)), 0 0 0 1px rgb(var(--line));
 }

@@ -15,7 +15,7 @@ export default () => {
             aria-label={`Switch to ${next} theme`}
             title={`Switch to ${next} theme`}
             className={
-                'relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg text-fg-muted ring-1 ring-inset ring-line transition-colors hover:bg-surface-3 hover:text-fg'
+                'relative flex h-10 w-10 flex-none items-center justify-center overflow-hidden rounded-xl border border-line bg-surface-0 text-fg-muted transition-colors hover:border-line-strong hover:text-fg'
             }
         >
             <AnimatePresence initial={false} exitBeforeEnter>

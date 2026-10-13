@@ -19,12 +19,15 @@
     [data-theme-scope='dark'] {
         color-scheme: dark;
 
-        --app: 12 12 13;
-        --surface: 20 20 22;
-        --surface-2: 27 27 30;
-        --surface-3: 36 36 40;
-        --line: 37 37 41;
-        --line-strong: 56 56 62;
+        --app: 7 7 8;
+        --surface: 18 18 20;
+        --surface-0: 13 13 15;
+        --surface-2: 22 22 25;
+        --surface-3: 30 30 34;
+        --line: 31 31 35;
+        --line-strong: 46 46 52;
+        --highlight: 255 255 255;
+        --highlight-alpha: 0.045;
         --fg: 237 237 239;
         --fg-muted: 161 161 168;
         --fg-subtle: 113 113 121;
@@ -39,10 +42,10 @@
         --gray-300: 161 161 168;
         --gray-400: 125 125 133;
         --gray-500: 82 82 90;
-        --gray-600: 32 32 36;
-        --gray-700: 20 20 22;
-        --gray-800: 12 12 13;
-        --gray-900: 10 10 11;
+        --gray-600: 28 28 32;
+        --gray-700: 18 18 20;
+        --gray-800: 7 7 8;
+        --gray-900: 5 5 6;
 
         --primary-50: 12 12 13;
         --primary-100: 24 24 27;
@@ -59,15 +62,18 @@
     :root[data-theme='light'] {
         color-scheme: light;
 
-        --app: 245 245 246;
+        --app: 243 243 241;
         --surface: 255 255 255;
-        --surface-2: 250 250 250;
-        --surface-3: 241 241 243;
-        --line: 231 231 234;
-        --line-strong: 212 212 216;
+        --surface-0: 251 251 250;
+        --surface-2: 248 248 246;
+        --surface-3: 239 239 236;
+        --line: 231 231 227;
+        --line-strong: 213 213 208;
+        --highlight: 255 255 255;
+        --highlight-alpha: 1;
         --fg: 17 17 19;
-        --fg-muted: 96 96 105;
-        --fg-subtle: 146 146 154;
+        --fg-muted: 92 92 99;
+        --fg-subtle: 142 142 148;
         --ink: 17 17 19;
         --ink-fg: 250 250 250;
         --shadow: 15 15 20;
@@ -81,7 +87,7 @@
         --gray-500: 161 161 168;
         --gray-600: 241 241 243;
         --gray-700: 255 255 255;
-        --gray-800: 245 245 246;
+        --gray-800: 243 243 241;
         --gray-900: 250 250 251;
 
         --primary-50: 250 250 250;
@@ -138,12 +144,17 @@
 }
 
 /*
- * Accent colour, chosen by the user from the account menu (mono by default) (data-accent on <html>).
+ * Accent colour, chosen by the user from the account menu (lime by default) (data-accent on <html>).
  * --accent is used for fills (buttons, switches, the brand mark) and
  * --accent-text for accent coloured text and icons, which needs to be lighter
  * on the dark theme to stay readable.
  */
 :root,
+:root[data-accent='lime'] {
+    --accent: 196 238 38;
+    --accent-fg: 12 14 4;
+    --accent-text: 77 105 0;
+}
 :root[data-accent='mono'] {
     --accent: 24 24 27;
     --accent-fg: 250 250 250;
@@ -176,8 +187,14 @@
 }
 
 :root[data-theme='dark']:not([data-accent]),
-:root[data-theme='dark'][data-accent='mono'],
+:root[data-theme='dark'][data-accent='lime'],
 :root:not([data-accent]) [data-theme-scope='dark'],
+:root[data-accent='lime'] [data-theme-scope='dark'] {
+    --accent: 212 255 63;
+    --accent-fg: 10 12 2;
+    --accent-text: 212 255 63;
+}
+:root[data-theme='dark'][data-accent='mono'],
 :root[data-accent='mono'] [data-theme-scope='dark'] {
     --accent: 237 237 239;
     --accent-fg: 12 12 13;
@@ -229,4 +246,13 @@
     --syn-atom: 190 120 20;
     --syn-tag: 210 15 57;
     --syn-meta: 136 57 239;
+}
+
+/* Raised panel: a soft top-to-bottom gradient with a 1px inner highlight. */
+@layer components {
+    .panel {
+        background-image: linear-gradient(180deg, rgb(var(--surface)), rgb(var(--surface-0)));
+        box-shadow: inset 0 1px 0 rgb(var(--highlight) / var(--highlight-alpha)), 0 0 0 1px rgb(var(--line)),
+            0 1px 2px rgb(var(--shadow) / 0.05);
+    }
 }

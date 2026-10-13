@@ -45,7 +45,7 @@ module.exports = {
                 cyan: colors.cyan,
                 // Semantic tokens used by the theme components.
                 app: v('app'),
-                surface: { DEFAULT: v('surface'), 2: v('surface-2'), 3: v('surface-3') },
+                surface: { DEFAULT: v('surface'), 0: v('surface-0'), 2: v('surface-2'), 3: v('surface-3') },
                 line: { DEFAULT: v('line'), strong: v('line-strong') },
                 fg: { DEFAULT: v('fg'), muted: v('fg-muted'), subtle: v('fg-subtle') },
                 ink: { DEFAULT: v('ink'), fg: v('ink-fg') },
@@ -55,12 +55,13 @@ module.exports = {
                 '2xs': '0.625rem',
             },
             borderRadius: {
-                xl: '0.875rem',
-                '2xl': '1.125rem',
+                xl: '1rem',
+                '2xl': '1.375rem',
+                '3xl': '1.75rem',
             },
             boxShadow: {
-                card: '0 1px 2px rgb(var(--shadow) / 0.06), 0 0 0 1px rgb(var(--line) / 1)',
-                pop: '0 12px 32px -8px rgb(var(--shadow) / 0.22), 0 0 0 1px rgb(var(--line) / 1)',
+                card: 'inset 0 1px 0 rgb(var(--highlight) / var(--highlight-alpha)), 0 0 0 1px rgb(var(--line)), 0 1px 2px rgb(var(--shadow) / 0.05)',
+                pop: 'inset 0 1px 0 rgb(var(--highlight) / var(--highlight-alpha)), 0 0 0 1px rgb(var(--line)), 0 24px 48px -16px rgb(var(--shadow) / 0.45)',
             },
             transitionDuration: {
                 250: '250ms',
