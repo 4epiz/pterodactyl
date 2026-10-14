@@ -45,6 +45,8 @@ export interface ServerRouteDefinition extends RouteDefinition {
     eggId?: number;
     nestIds?: number[];
     eggIds?: number[];
+    // Set for pages added by addons, which get their own sidebar section.
+    addon?: boolean;
 }
 
 export interface Routes {
@@ -157,7 +159,7 @@ const routes: Routes = {
 
 // Pages added by addons in resources/scripts/addons.
 routes.account.push(...addons.account);
-routes.server.push(...addons.server);
+routes.server.push(...addons.server.map((route) => ({ ...route, addon: true })));
 
 /**
  * Whether a server page is available for the given server, based on the
@@ -165,7 +167,7 @@ routes.server.push(...addons.server);
  */
 export const isRouteAvailable = (
     route: ServerRouteDefinition,
-    server: Pick<Server, 'nestId' | 'eggId' | 'eggName' | 'dockerImage' | 'invocation' | 'variables'>
+    server: Pick<Server, 'nestId' | 'eggId' | 'eggName' | 'dockerImage' | 'invocation' | 'variables' | 'game'>
 ): boolean => {
     const limits: boolean[] = [];
 

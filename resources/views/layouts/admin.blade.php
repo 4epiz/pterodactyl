@@ -116,10 +116,13 @@
                                 <i class="fa fa-users"></i> <span>Users</span>
                             </a>
                         </li>
+                        <li class="header">ADDONS</li>
+                        <li class="{{ Route::currentRouteName() !== 'admin.addons' ?: 'active' }}">
+                            <a href="{{ route('admin.addons') }}">
+                                <i class="fa fa-puzzle-piece"></i> <span>Installed Addons</span>
+                            </a>
+                        </li>
                         @foreach(\Pterodactyl\Services\Addons\AddonRegistry::adminNavigation() as $addonNav)
-                            @if($loop->first)
-                                <li class="header">ADDONS</li>
-                            @endif
                             <li class="{{ ! starts_with(Route::currentRouteName(), $addonNav['active'] ?? $addonNav['route']) ?: 'active' }}">
                                 <a href="{{ route($addonNav['route']) }}">
                                     <i class="fa {{ $addonNav['icon'] ?? 'fa-puzzle-piece' }}"></i> <span>{{ $addonNav['label'] }}</span>
@@ -166,6 +169,13 @@
                             @endforeach
                         </div>
                     </div>
+                    @php($pendingAddonMigrations = \Pterodactyl\Services\Addons\AddonRegistry::pendingMigrations())
+                    @if(!empty($pendingAddonMigrations))
+                        <div class="alert alert-warning">
+                            <strong>{{ implode(', ', array_keys($pendingAddonMigrations)) }}</strong> {{ count($pendingAddonMigrations) === 1 ? 'needs' : 'need' }} a database update before {{ count($pendingAddonMigrations) === 1 ? 'it' : 'they' }} can be used.
+                            Run <code>php artisan migrate --force</code> in the panel folder (usually <code>/var/www/pterodactyl</code>).
+                        </div>
+                    @endif
                     @yield('content')
                 </section>
             </div>

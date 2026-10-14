@@ -248,4 +248,6 @@ Route::group(['prefix' => 'nests'], function () {
 | Routes added by addons in app/Addons.
 |
 */
+Route::get('/addons', [Admin\Addons\AddonController::class, 'index'])->name('admin.addons');
+
 Pterodactyl\Services\Addons\AddonRegistry::routes('admin');

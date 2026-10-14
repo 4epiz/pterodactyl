@@ -14,7 +14,8 @@ import ErrorBoundary from '@/components/elements/ErrorBoundary';
 import { useLocation } from 'react-router';
 import ConflictStateRenderer from '@/components/server/ConflictStateRenderer';
 import PermissionRoute from '@/components/elements/PermissionRoute';
-import routes, { isRouteAvailable } from '@/routers/routes';
+import routes, { isRouteAvailable, ServerRouteDefinition } from '@/routers/routes';
+import { hasPermission } from '@/plugins/usePermissions';
 import AppShell from '@/components/theme/AppShell';
 import Sidebar, { NavItem, NavSection } from '@/components/theme/Sidebar';
 import ServerSidebarHeader from '@/components/theme/ServerSidebarHeader';
@@ -34,6 +35,7 @@ export default () => {
     const inConflictState = ServerContext.useStoreState((state) => state.server.inConflictState);
     const serverId = ServerContext.useStoreState((state) => state.server.data?.internalId);
     const server = ServerContext.useStoreState((state) => state.server.data);
+    const permissions = ServerContext.useStoreState((state) => state.server.permissions);
     const getServer = ServerContext.useStoreActions((actions) => actions.server.getServer);
     const clearServerState = ServerContext.useStoreActions((actions) => actions.clearServerState);
 
@@ -67,47 +69,65 @@ export default () => {
         };
     }, [match.params.id]);
 
+    const navItem = (route: ServerRouteDefinition, instance: string) => {
+        const item = (
+            <NavItem
+                key={route.path}
+                to={to(route.path, true)}
+                match={to(route.path)}
+                exact={route.exact}
+                icon={serverIcon(route.path)}
+                label={route.name!}
+                layoutGroup={instance}
+            />
+        );
+
+        return route.permission ? (
+            <Can key={route.path} action={route.permission} matchAny>
+                {item}
+            </Can>
+        ) : (
+            item
+        );
+    };
+
+    // Addon pages the user can open, shown in their own section.
+    const addonRoutes = serverRoutes.filter(
+        (route) =>
+            route.addon &&
+            !!route.name &&
+            (!route.permission ||
+                (Array.isArray(route.permission) ? route.permission : [route.permission]).some((permission) =>
+                    hasPermission(permissions, permission)
+                ))
+    );
+
     const sidebar = (instance: string) => (
         <Sidebar instance={instance} header={uuid && id ? <ServerSidebarHeader /> : undefined}>
             {uuid && id && (
-                <NavSection title={'Server'}>
-                    {serverRoutes
-                        .filter((route) => !!route.name)
-                        .map((route) => {
-                            const item = (
-                                <NavItem
-                                    key={route.path}
-                                    to={to(route.path, true)}
-                                    match={to(route.path)}
-                                    exact={route.exact}
-                                    icon={serverIcon(route.path)}
-                                    label={route.name}
-                                    layoutGroup={instance}
-                                />
-                            );
-
-                            return route.permission ? (
-                                <Can key={route.path} action={route.permission} matchAny>
-                                    {item}
-                                </Can>
-                            ) : (
-                                item
-                            );
-                        })}
-                    {rootAdmin && (
-                        // eslint-disable-next-line react/jsx-no-target-blank
-                        <a
-                            href={`/admin/servers/view/${serverId}`}
-                            target={'_blank'}
-                            className={
-                                'flex h-10 items-center gap-3 rounded-xl px-3 text-[14px] font-medium text-fg-muted no-underline hover:text-fg'
-                            }
-                        >
-                            <ExternalLinkIcon className={'h-[18px] w-[18px] text-fg-subtle'} strokeWidth={1.6} />
-                            Manage in admin
-                        </a>
+                <>
+                    <NavSection title={'Server'}>
+                        {serverRoutes
+                            .filter((route) => !!route.name && !route.addon)
+                            .map((route) => navItem(route, instance))}
+                        {rootAdmin && (
+                            // eslint-disable-next-line react/jsx-no-target-blank
+                            <a
+                                href={`/admin/servers/view/${serverId}`}
+                                target={'_blank'}
+                                className={
+                                    'flex h-10 items-center gap-3 rounded-xl px-3 text-[14px] font-medium text-fg-muted no-underline hover:text-fg'
+                                }
+                            >
+                                <ExternalLinkIcon className={'h-[18px] w-[18px] text-fg-subtle'} strokeWidth={1.6} />
+                                Manage in admin
+                            </a>
+                        )}
+                    </NavSection>
+                    {addonRoutes.length > 0 && (
+                        <NavSection title={'Addons'}>{addonRoutes.map((route) => navItem(route, instance))}</NavSection>
                     )}
-                </NavSection>
+                </>
             )}
         </Sidebar>
     );
