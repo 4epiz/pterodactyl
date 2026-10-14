@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Pterodactyl\Extensions\Themes\Theme;
+use Pterodactyl\Services\Addons\AddonRegistry;
 use Illuminate\Database\Eloquent\Relations\Relation;
 
 class AppServiceProvider extends ServiceProvider
@@ -26,6 +27,8 @@ class AppServiceProvider extends ServiceProvider
         View::share('appIsGit', $this->versionData()['is_git'] ?? false);
 
         Paginator::useBootstrap();
+
+        $this->loadMigrationsFrom(AddonRegistry::migrationPaths());
 
         // If the APP_URL value is set with https:// make sure we force it here. Theoretically
         // this should just work with the proxy logic, but there are a lot of cases where it

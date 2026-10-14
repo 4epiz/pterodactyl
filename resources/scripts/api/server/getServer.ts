@@ -62,6 +62,8 @@ export interface Server {
     // Name of the server's egg (e.g. "Paper", "FiveM"), present when the API
     // response included the egg relationship.
     eggName?: string;
+    nestId: number;
+    eggId: number;
     variables: ServerEggVariable[];
     allocations: Allocation[];
 }
@@ -88,6 +90,8 @@ export const rawDataToServerObject = ({ attributes: data }: FractalResponseData)
     featureLimits: { ...data.feature_limits },
     isTransferring: data.is_transferring,
     skipScripts: data.skip_scripts,
+    nestId: data.nest_id,
+    eggId: data.egg_id,
     eggName: (data.relationships?.egg as FractalResponseData | undefined)?.attributes?.name,
     variables: ((data.relationships?.variables as FractalResponseList | undefined)?.data || []).map(
         rawDataToServerEggVariable

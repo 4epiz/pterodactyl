@@ -116,6 +116,16 @@
                                 <i class="fa fa-users"></i> <span>Users</span>
                             </a>
                         </li>
+                        @foreach(\Pterodactyl\Services\Addons\AddonRegistry::adminNavigation() as $addonNav)
+                            @if($loop->first)
+                                <li class="header">ADDONS</li>
+                            @endif
+                            <li class="{{ ! starts_with(Route::currentRouteName(), $addonNav['active'] ?? $addonNav['route']) ?: 'active' }}">
+                                <a href="{{ route($addonNav['route']) }}">
+                                    <i class="fa {{ $addonNav['icon'] ?? 'fa-puzzle-piece' }}"></i> <span>{{ $addonNav['label'] }}</span>
+                                </a>
+                            </li>
+                        @endforeach
                         <li class="header">SERVICE MANAGEMENT</li>
                         <li class="{{ ! starts_with(Route::currentRouteName(), 'admin.mounts') ?: 'active' }}">
                             <a href="{{ route('admin.mounts') }}">

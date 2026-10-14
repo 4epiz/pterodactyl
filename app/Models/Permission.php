@@ -3,6 +3,7 @@
 namespace Pterodactyl\Models;
 
 use Illuminate\Support\Collection;
+use Pterodactyl\Services\Addons\AddonRegistry;
 
 class Permission extends Model
 {
@@ -214,6 +215,6 @@ class Permission extends Model
      */
     public static function permissions(): Collection
     {
-        return Collection::make(self::$permissions);
+        return Collection::make(array_merge(self::$permissions, AddonRegistry::permissions()));
     }
 }
