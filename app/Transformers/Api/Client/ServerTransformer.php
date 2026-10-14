@@ -79,6 +79,9 @@ class ServerTransformer extends BaseClientTransformer
             // This field is deprecated, please use "status".
             'is_installing' => !$server->isInstalled(),
             'is_transferring' => !is_null($server->transfer),
+            // Used by addons to show pages for specific nests or eggs only.
+            'nest_id' => $server->nest_id,
+            'egg_id' => $server->egg_id,
             'skip_scripts' => $server->skip_scripts,
         ];
     }

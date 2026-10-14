@@ -21,9 +21,11 @@ NAME="graphite-theme-${VERSION}"
 OUT="$ROOT/theme-package/dist"
 STAGE="$OUT/$NAME"
 
-# Files that are never shipped: packaging itself and dependency manifests,
-# which the installer updates with yarn instead of overwriting.
-EXCLUDE='^(theme-package/|package\.json$|yarn\.lock$)'
+# Files that are never shipped: packaging itself, dependency manifests (which
+# the installer updates with yarn instead of overwriting), and addons installed
+# on this panel. Addons are third-party products with their own licences; the
+# theme only ships the generic loader (app/Services/Addons, resources/scripts/addons/index.ts).
+EXCLUDE='^(theme-package/|package\.json$|yarn\.lock$|app/Addons/|config/addons/|resources/views/addons/|resources/scripts/addons/[^/]+/|tests/(Integration|Unit)/Addons/)'
 
 git cat-file -e "${BASE_REF}^{commit}" 2>/dev/null || {
     echo "BASE_REF ${BASE_REF} is not available locally; fetch it first." >&2
@@ -55,6 +57,13 @@ while IFS=$'\t' read -r status path; do
 done < <(git diff --no-renames --name-status "$BASE_REF" HEAD)
 
 # Dependencies the theme needs, installed by the installer with yarn.
+# Guard against shipping something that depends on an excluded addon.
+if grep -rlE 'Pterodactyl\\Addons\\|@/addons/[A-Za-z0-9_-]+' "$STAGE/files" >/dev/null 2>&1; then
+    echo "These files reference addon code that is not part of the theme:" >&2
+    grep -rlE 'Pterodactyl\\Addons\\|@/addons/[A-Za-z0-9_-]+' "$STAGE/files" >&2
+    exit 1
+fi
+
 cat > "$STAGE/DEPENDENCIES" <<'DEPS'
 @fontsource-variable/geist@5.3.0
 @fontsource-variable/geist-mono@5.3.0

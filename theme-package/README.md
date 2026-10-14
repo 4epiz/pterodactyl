@@ -73,6 +73,19 @@ Graphite is designed to coexist with addons that add pages to the panel:
 - **Shared components keep their names and props.** `ServerContentBlock`, `PageContentBlock`, `TitledGreyBox`, `Button`, `Input`, `Dialog` and the rest are restyled in place, so addon pages built from them match the theme.
 - **Colours are CSS variables.** Addons that use the panel's Tailwind colours (`bg-neutral-700`, `text-gray-200`, ...) follow the light and dark themes automatically.
 
+### Addon folders
+
+Graphite also adds a small loader so addons can be installed without editing the panel's own files. An addon made for it is a set of folders:
+
+| Folder | Contents |
+|---|---|
+| `app/Addons/<Name>/` | PHP code and an `addon.php` manifest: subuser permissions, route files, migrations and an admin sidebar link |
+| `resources/scripts/addons/<name>/index.ts` | client-area pages, picked up automatically when the panel is built |
+| `resources/views/addons/<name>/` | admin area pages |
+| `config/addons/<name>.php` | settings, available as `config('addons.<name>')` |
+
+Client pages can be limited to certain games, nests or eggs (`games: ['minecraft']`, `nestIds`, `eggIds`), and server routes can use the `RequireGame` middleware to match. Games are detected with the same rules in the browser and on the server (`resources/scripts/components/theme/gameRules.json`). See `app/Services/Addons/AddonRegistry.php` and `resources/scripts/addons/index.ts` for the manifest format. After copying an addon in, run `php artisan migrate`, `php artisan optimize:clear` and `yarn build:production`.
+
 ### Installing an addon after Graphite
 
 If an addon's installer overwrites a file Graphite changed, run:

@@ -14,7 +14,7 @@ import ErrorBoundary from '@/components/elements/ErrorBoundary';
 import { useLocation } from 'react-router';
 import ConflictStateRenderer from '@/components/server/ConflictStateRenderer';
 import PermissionRoute from '@/components/elements/PermissionRoute';
-import routes from '@/routers/routes';
+import routes, { isRouteAvailable } from '@/routers/routes';
 import AppShell from '@/components/theme/AppShell';
 import Sidebar, { NavItem, NavSection } from '@/components/theme/Sidebar';
 import ServerSidebarHeader from '@/components/theme/ServerSidebarHeader';
@@ -33,8 +33,12 @@ export default () => {
     const name = ServerContext.useStoreState((state) => state.server.data?.name);
     const inConflictState = ServerContext.useStoreState((state) => state.server.inConflictState);
     const serverId = ServerContext.useStoreState((state) => state.server.data?.internalId);
+    const server = ServerContext.useStoreState((state) => state.server.data);
     const getServer = ServerContext.useStoreActions((actions) => actions.server.getServer);
     const clearServerState = ServerContext.useStoreActions((actions) => actions.clearServerState);
+
+    // Addon pages can be limited to certain games, nests or eggs.
+    const serverRoutes = server ? routes.server.filter((route) => isRouteAvailable(route, server)) : routes.server;
 
     const to = (value: string, url = false) => {
         if (value === '/') {
@@ -67,7 +71,7 @@ export default () => {
         <Sidebar instance={instance} header={uuid && id ? <ServerSidebarHeader /> : undefined}>
             {uuid && id && (
                 <NavSection title={'Server'}>
-                    {routes.server
+                    {serverRoutes
                         .filter((route) => !!route.name)
                         .map((route) => {
                             const item = (
@@ -108,7 +112,7 @@ export default () => {
         </Sidebar>
     );
 
-    const current = routes.server.find(
+    const current = serverRoutes.find(
         (route) => !!route.name && matchPath(location.pathname, { path: to(route.path), exact: route.exact })
     );
 
@@ -138,7 +142,7 @@ export default () => {
                         <ErrorBoundary>
                             <TransitionRouter>
                                 <Switch location={location}>
-                                    {routes.server.map(({ path, permission, component: Component }) => (
+                                    {serverRoutes.map(({ path, permission, component: Component }) => (
                                         <PermissionRoute key={path} permission={permission} path={to(path)} exact>
                                             <Spinner.Suspense>
                                                 <Component />

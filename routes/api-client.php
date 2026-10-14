@@ -3,6 +3,7 @@
 use Pterodactyl\Enum\ResourceLimit;
 use Illuminate\Support\Facades\Route;
 use Pterodactyl\Http\Controllers\Api\Client;
+use Pterodactyl\Services\Addons\AddonRegistry;
 use Pterodactyl\Http\Middleware\Activity\ServerSubject;
 use Pterodactyl\Http\Middleware\Activity\AccountSubject;
 use Pterodactyl\Http\Middleware\RequireTwoFactorAuthentication;
@@ -144,6 +145,9 @@ Route::group([
         Route::get('/', [Client\Servers\StartupController::class, 'index']);
         Route::put('/variable', [Client\Servers\StartupController::class, 'update']);
     });
+
+    // Routes added by addons in app/Addons.
+    AddonRegistry::routes('client-server');
 
     Route::group(['prefix' => '/settings'], function () {
         Route::post('/rename', [Client\Servers\SettingsController::class, 'rename']);

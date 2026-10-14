@@ -22,7 +22,11 @@ import ServerActivityLogContainer from '@/components/server/ServerActivityLogCon
 const FileEditContainer = lazy(() => import('@/components/server/files/FileEditContainer'));
 const ScheduleEditContainer = lazy(() => import('@/components/server/schedules/ScheduleEditContainer'));
 
-interface RouteDefinition {
+import addons from '@/addons';
+import { Server } from '@/api/server/getServer';
+import { detectGame, GameKey } from '@/components/theme/games';
+
+export interface RouteDefinition {
     path: string;
     // If undefined is passed this route is still rendered into the router itself
     // but no navigation link is displayed in the sub-navigation menu.
@@ -31,18 +35,26 @@ interface RouteDefinition {
     exact?: boolean;
 }
 
-interface ServerRouteDefinition extends RouteDefinition {
+export interface ServerRouteDefinition extends RouteDefinition {
     permission: string | string[] | null;
+    // Optional limits used by addons: the route is only available to servers
+    // running one of these games (see components/theme/games.ts), or in one of
+    // these nests or eggs.
+    games?: GameKey[];
+    nestId?: number;
+    eggId?: number;
+    nestIds?: number[];
+    eggIds?: number[];
 }
 
-interface Routes {
+export interface Routes {
     // All of the routes available under "/account"
     account: RouteDefinition[];
     // All of the routes available under "/server/:id"
     server: ServerRouteDefinition[];
 }
 
-export default {
+const routes: Routes = {
     account: [
         {
             path: '/',
@@ -141,4 +153,32 @@ export default {
             component: ServerActivityLogContainer,
         },
     ],
-} as Routes;
+};
+
+// Pages added by addons in resources/scripts/addons.
+routes.account.push(...addons.account);
+routes.server.push(...addons.server);
+
+/**
+ * Whether a server page is available for the given server, based on the
+ * route's optional game, nest and egg limits.
+ */
+export const isRouteAvailable = (
+    route: ServerRouteDefinition,
+    server: Pick<Server, 'nestId' | 'eggId' | 'eggName' | 'dockerImage' | 'invocation' | 'variables'>
+): boolean => {
+    const limits: boolean[] = [];
+
+    if (route.games) limits.push(route.games.includes(detectGame(server)));
+    if (route.nestId !== undefined || route.nestIds) {
+        limits.push(route.nestId === server.nestId || !!route.nestIds?.includes(server.nestId));
+    }
+    if (route.eggId !== undefined || route.eggIds) {
+        limits.push(route.eggId === server.eggId || !!route.eggIds?.includes(server.eggId));
+    }
+
+    // With several kinds of limits, matching any of them is enough.
+    return limits.length === 0 || limits.some(Boolean);
+};
+
+export default routes;

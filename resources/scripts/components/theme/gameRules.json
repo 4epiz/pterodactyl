@@ -1,0 +1,53 @@
+{
+    "_comment": "Game detection rules, checked in order (first match wins) against the lower-cased egg name, then docker image, startup command and variable names. Shared by components/theme/games.ts and app/Services/Servers/GameDetector.php.",
+    "rules": [
+        {
+            "game": "western",
+            "pattern": "\\bredm\\b"
+        },
+        {
+            "game": "gta",
+            "pattern": "fivem|fxserver|txadmin|\\bgta\\b|rage ?mp|alt:?v\\b"
+        },
+        {
+            "game": "minecraft",
+            "pattern": "minecraft|paper|purpur|spigot|bukkit|forge|fabric|quilt|vanilla|bungee|velocity|waterfall|sponge|bedrock|nukkit|pocketmine|mohist|folia|server_jarfile"
+        },
+        {
+            "game": "terraria",
+            "pattern": "terraria|tmodloader|tshock"
+        },
+        {
+            "game": "rust",
+            "pattern": "\\brust\\b|rustdedicated|oxide"
+        },
+        {
+            "game": "ark",
+            "pattern": "\\bark\\b|shootergame|\\basa\\b"
+        },
+        {
+            "game": "valheim",
+            "pattern": "valheim"
+        },
+        {
+            "game": "fps",
+            "pattern": "counter-?strike|\\bcs2\\b|csgo|srcds|garry|gmod|team ?fortress|\\btf2\\b|insurgency|left ?4 ?dead|l4d|squad|arma"
+        },
+        {
+            "game": "survival",
+            "pattern": "7 ?days|project ?zomboid|zomboid|dayz|unturned|the ?forest|sons ?of ?the ?forest|conan|palworld|v ?rising"
+        },
+        {
+            "game": "voice",
+            "pattern": "teamspeak|\\bts3\\b|mumble|murmur"
+        },
+        {
+            "game": "database",
+            "pattern": "mariadb|mysql|postgres|redis|mongo"
+        },
+        {
+            "game": "code",
+            "pattern": "discord|node|nodejs|python|bun\\b|deno|golang|\\bjava\\b|dotnet|\\bbot\\b"
+        }
+    ]
+}

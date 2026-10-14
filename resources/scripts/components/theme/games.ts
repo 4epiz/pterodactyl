@@ -1,3 +1,4 @@
+import gameRules from './gameRules.json';
 import { Server } from '@/api/server/getServer';
 
 export type GameKey =
@@ -58,30 +59,9 @@ export const customGameImages: Partial<Record<GameKey, string>> = {
 };
 
 // Checked in order, first match wins. Matched against the egg name, docker
-// image, startup command and variable names of the server.
-const rules: [GameKey, RegExp][] = [
-    ['western', /\bredm\b/],
-    ['gta', /fivem|fxserver|txadmin|\bgta\b|rage ?mp|alt:?v\b/],
-    [
-        'minecraft',
-        /minecraft|paper|purpur|spigot|bukkit|forge|fabric|quilt|vanilla|bungee|velocity|waterfall|sponge|bedrock|nukkit|pocketmine|mohist|folia|server_jarfile/,
-    ],
-    ['terraria', /terraria|tmodloader|tshock/],
-    ['rust', /\brust\b|rustdedicated|oxide/],
-    ['ark', /\bark\b|shootergame|\basa\b/],
-    ['valheim', /valheim/],
-    [
-        'fps',
-        /counter-?strike|\bcs2\b|csgo|srcds|garry|gmod|team ?fortress|\btf2\b|insurgency|left ?4 ?dead|l4d|squad|arma/,
-    ],
-    [
-        'survival',
-        /7 ?days|project ?zomboid|zomboid|dayz|unturned|the ?forest|sons ?of ?the ?forest|conan|palworld|v ?rising/,
-    ],
-    ['voice', /teamspeak|\bts3\b|mumble|murmur/],
-    ['database', /mariadb|mysql|postgres|redis|mongo/],
-    ['code', /discord|node|nodejs|python|bun\b|deno|golang|\bjava\b|dotnet|\bbot\b/],
-];
+// image, startup command and variable names of the server. The same rules are
+// used by the panel backend (app/Services/Servers/GameDetector.php).
+const rules: [GameKey, RegExp][] = gameRules.rules.map(({ game, pattern }) => [game as GameKey, new RegExp(pattern)]);
 
 const match = (text: string): GameKey | undefined => rules.find(([, pattern]) => pattern.test(text))?.[0];
 
