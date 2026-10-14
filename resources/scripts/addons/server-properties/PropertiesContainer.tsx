@@ -14,7 +14,8 @@ import Toggle from '@/components/theme/Toggle';
 import { usePermissions } from '@/plugins/usePermissions';
 import { useFlashKey } from '@/plugins/useFlash';
 import useFlash from '@/plugins/useFlash';
-import { getProperties, ServerProperty, updateProperties } from './api';
+import { DocumentTextIcon } from '@heroicons/react/outline';
+import { getProperties, PropertiesResponse, ServerProperty, updateProperties } from './api';
 
 // "max-players" -> "Max players", "enable-rcon" -> "Enable RCON"
 const humanize = (key: string) => {
@@ -85,9 +86,14 @@ export default () => {
     const { clearFlashes, clearAndAddHttpError } = useFlashKey('server:properties');
     const { addFlash } = useFlash();
 
-    const { data, error, mutate } = useSWR<ServerProperty[]>([uuid, '/addons/properties'], () => getProperties(uuid), {
+    const {
+        data: response,
+        error,
+        mutate,
+    } = useSWR<PropertiesResponse>([uuid, '/addons/properties'], () => getProperties(uuid), {
         revalidateOnFocus: false,
     });
+    const data = response?.properties;
 
     const [values, setValues] = useState<Record<string, string>>({});
     const [query, setQuery] = useState('');
@@ -126,7 +132,7 @@ export default () => {
 
         updateProperties(uuid, Object.fromEntries(changed.map((property) => [property.key, values[property.key]])))
             .then(({ properties }) => {
-                mutate(properties, false);
+                mutate({ exists: true, properties }, false);
                 addFlash({
                     key: 'server:properties',
                     type: 'success',
@@ -143,28 +149,39 @@ export default () => {
                 title={'Server properties'}
                 description={'Settings from server.properties. Changes apply after a restart.'}
                 actions={
-                    <div className={'relative w-full sm:w-64'}>
-                        <SearchIcon
-                            className={
-                                'pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg-subtle'
-                            }
-                            strokeWidth={1.8}
-                        />
-                        <Input
-                            type={'search'}
-                            placeholder={'Search properties'}
-                            value={query}
-                            onChange={(e) => setQuery(e.currentTarget.value)}
-                            className={'!pl-9'}
-                            aria-label={'Search properties'}
-                        />
-                    </div>
+                    response?.exists && (
+                        <div className={'relative w-full sm:w-64'}>
+                            <SearchIcon
+                                className={
+                                    'pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg-subtle'
+                                }
+                                strokeWidth={1.8}
+                            />
+                            <Input
+                                type={'search'}
+                                placeholder={'Search properties'}
+                                value={query}
+                                onChange={(e) => setQuery(e.currentTarget.value)}
+                                className={'!pl-9'}
+                                aria-label={'Search properties'}
+                            />
+                        </div>
+                    )
                 }
             />
             <FlashMessageRender byKey={'server:properties'} className={'mb-4'} />
-            {!data ? (
+            {!response ? (
                 !error && <Spinner size={'large'} centered />
-            ) : (
+            ) : !response.exists ? (
+                <div className={'panel rounded-2xl px-6 py-14 text-center'}>
+                    <DocumentTextIcon className={'mx-auto h-8 w-8 text-fg-subtle'} strokeWidth={1.4} />
+                    <p className={'mt-3 text-sm font-medium text-fg'}>No server.properties yet</p>
+                    <p className={'mx-auto mt-1 max-w-sm text-sm text-fg-subtle'}>
+                        Minecraft creates this file the first time the server starts. Start the server once, then come
+                        back here to change its settings.
+                    </p>
+                </div>
+            ) : !data ? null : (
                 <>
                     <div className={'panel divide-y divide-line overflow-hidden rounded-2xl'}>
                         {visible.length === 0 ? (

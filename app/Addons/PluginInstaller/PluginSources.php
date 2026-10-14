@@ -40,21 +40,44 @@ class PluginSources
         9 => 'Libraries / APIs',
     ];
 
-    private const MODRINTH_LOADERS = ['bukkit', 'spigot', 'paper', 'purpur', 'folia'];
+    // Modrinth loaders whose plugins run on each Minecraft platform.
+    private const MODRINTH_LOADERS = [
+        'bukkit' => ['bukkit', 'spigot', 'paper', 'purpur', 'folia'],
+        'bungee' => ['bungeecord', 'waterfall'],
+        'velocity' => ['velocity'],
+    ];
+
+    // SpigotMC's category for BungeeCord proxy plugins.
+    private const SPIGOT_PROXY_CATEGORY = 3;
 
     // Letters used in installed file names: Name-S1234-5678.jar
     public const FILE_PREFIX = [self::SPIGOT => 'S', self::MODRINTH => 'M', self::POLYMART => 'P'];
 
     /**
+     * Sources with plugins for a Minecraft platform (see GameDetector).
+     * Velocity plugins are only listed on Modrinth, Polymart only has
+     * plugins for Bukkit-based servers.
+     */
+    public static function sourcesFor(?string $platform): array
+    {
+        return match ($platform) {
+            'velocity' => [self::MODRINTH],
+            'bungee' => [self::SPIGOT, self::MODRINTH],
+            default => self::SOURCES,
+        };
+    }
+
+    /**
      * @return array{plugins: array, page: int, has_more: bool}
      */
-    public function search(string $source, string $query, int $page, ?int $category = null, ?string $gameVersion = null): array
+    public function search(string $source, string $query, int $page, ?int $category = null, ?string $gameVersion = null, ?string $platform = null): array
     {
         $key = 'addons:plugins:search:' . sha1(json_encode(func_get_args()));
 
         return Cache::remember($key, $this->config('cache_ttl', 300), fn () => match ($source) {
-            self::SPIGOT => $this->searchSpigot($query, $page, $category),
-            self::MODRINTH => $this->searchModrinth($query, $page, $gameVersion),
+            // Proxies only get proxy plugins when browsing.
+            self::SPIGOT => $this->searchSpigot($query, $page, $platform === 'bungee' ? self::SPIGOT_PROXY_CATEGORY : $category),
+            self::MODRINTH => $this->searchModrinth($query, $page, $gameVersion, $platform),
             self::POLYMART => $this->searchPolymart($query, $page),
         });
     }
@@ -64,7 +87,7 @@ class PluginSources
      *
      * @return array<array{id: string, name: string, downloads: int|null, released_at: string|null, game_versions: array, installable: bool}>
      */
-    public function versions(string $source, string $id): array
+    public function versions(string $source, string $id, ?string $platform = null): array
     {
         return match ($source) {
             self::SPIGOT => array_map(fn (array $version) => [
@@ -83,7 +106,7 @@ class PluginSources
                 'released_at' => $this->date($version['date_published'] ?? null),
                 'game_versions' => $version['game_versions'] ?? [],
                 'installable' => !is_null($this->primaryFile($version)),
-            ], $this->modrinthVersions($id)),
+            ], $this->modrinthVersions($id, $platform)),
             self::POLYMART => array_map(fn (array $update) => [
                 'id' => (string) $update['id'],
                 'name' => (string) ($update['version'] ?? $update['title'] ?? $update['id']),
@@ -101,11 +124,11 @@ class PluginSources
      *
      * @return array{url: string, filename: string, version: string, name: string}
      */
-    public function download(string $source, string $id, ?string $version = null): array
+    public function download(string $source, string $id, ?string $version = null, ?string $platform = null): array
     {
         return match ($source) {
             self::SPIGOT => $this->downloadSpigot($id, $version),
-            self::MODRINTH => $this->downloadModrinth($id, $version),
+            self::MODRINTH => $this->downloadModrinth($id, $version, $platform),
             self::POLYMART => $this->downloadPolymart($id, $version),
         };
     }
@@ -181,10 +204,10 @@ class PluginSources
         return ['plugins' => $plugins, 'page' => $page, 'has_more' => count($results) >= $size];
     }
 
-    private function searchModrinth(string $query, int $page, ?string $gameVersion): array
+    private function searchModrinth(string $query, int $page, ?string $gameVersion, ?string $platform): array
     {
         $size = $this->perPage();
-        $facets = [array_map(fn ($loader) => "categories:$loader", self::MODRINTH_LOADERS), ['project_type:mod']];
+        $facets = [array_map(fn ($loader) => "categories:$loader", self::loaders($platform)), ['project_type:mod']];
         if ($gameVersion) {
             $facets[] = ["versions:$gameVersion"];
         }
@@ -287,10 +310,10 @@ class PluginSources
         ];
     }
 
-    private function downloadModrinth(string $id, ?string $version): array
+    private function downloadModrinth(string $id, ?string $version, ?string $platform): array
     {
         $project = $this->get($this->config('modrinth_url') . "/project/$id");
-        $versions = $this->modrinthVersions($id);
+        $versions = $this->modrinthVersions($id, $platform);
 
         $selected = is_null($version)
             ? collect($versions)->first(fn (array $item) => !is_null($this->primaryFile($item)))
@@ -298,7 +321,7 @@ class PluginSources
 
         $file = $selected ? $this->primaryFile($selected) : null;
         if (!$file) {
-            throw new DisplayException('No downloadable file was found for this version.');
+            throw new DisplayException('No version of this plugin works on this type of server.');
         }
 
         return [
@@ -338,11 +361,16 @@ class PluginSources
         ];
     }
 
-    private function modrinthVersions(string $id): array
+    private function modrinthVersions(string $id, ?string $platform): array
     {
         return Arr::wrap($this->get($this->config('modrinth_url') . "/project/$id/version", [
-            'loaders' => json_encode(self::MODRINTH_LOADERS),
+            'loaders' => json_encode(self::loaders($platform)),
         ]));
+    }
+
+    private static function loaders(?string $platform): array
+    {
+        return self::MODRINTH_LOADERS[$platform] ?? self::MODRINTH_LOADERS['bukkit'];
     }
 
     private function polymartResource(string $id): ?array

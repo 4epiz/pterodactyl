@@ -7,10 +7,16 @@ export interface ServerProperty {
     options: string[];
 }
 
-export const getProperties = async (uuid: string): Promise<ServerProperty[]> => {
+export interface PropertiesResponse {
+    // False when the server has no server.properties yet (it has never started).
+    exists: boolean;
+    properties: ServerProperty[];
+}
+
+export const getProperties = async (uuid: string): Promise<PropertiesResponse> => {
     const { data } = await http.get(`/api/client/servers/${uuid}/properties`);
 
-    return data.properties;
+    return { exists: data.exists, properties: data.properties };
 };
 
 export const updateProperties = async (

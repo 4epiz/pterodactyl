@@ -26,6 +26,7 @@ import { Dialog } from '@/components/elements/dialog';
 import PageHeader from '@/components/theme/PageHeader';
 import Segmented from '@/components/theme/Segmented';
 import { usePermissions } from '@/plugins/usePermissions';
+import { detectPlatform } from '@/components/theme/games';
 import useFlash, { useFlashKey } from '@/plugins/useFlash';
 import { bytesToString } from '@/lib/formatters';
 import {
@@ -413,12 +414,21 @@ const InstalledList = ({
 
 export default () => {
     const uuid = ServerContext.useStoreState((state) => state.server.data!.uuid);
+    const server = ServerContext.useStoreState((state) => state.server.data!);
     const [canInstall, canDelete] = usePermissions(['file.create', 'file.delete']);
+
+    // Proxies get proxy plugins: BungeeCord/Waterfall from SpigotMC and
+    // Modrinth, Velocity from Modrinth only. Matches PluginSources::sourcesFor().
+    const platform = detectPlatform(server);
+    const isProxy = platform === 'bungee' || platform === 'velocity';
+    const sources = SOURCES.filter(({ value }) =>
+        platform === 'velocity' ? value === 'modrinth' : platform !== 'bungee' || value !== 'polymart'
+    );
     const { clearFlashes, clearAndAddHttpError } = useFlashKey(FLASH);
     const { addFlash } = useFlash();
 
     const [tab, setTab] = useState<'browse' | 'installed'>('browse');
-    const [source, setSource] = useState<PluginSource>('spigot');
+    const [source, setSource] = useState<PluginSource>(sources[0].value);
     const [input, setInput] = useState('');
     const [query, setQuery] = useState('');
     const [page, setPage] = useState(1);
@@ -440,7 +450,7 @@ export default () => {
         source,
         query,
         page,
-        category: source === 'spigot' && !query ? category : null,
+        category: source === 'spigot' && !query && !isProxy ? category : null,
         version: source === 'modrinth' ? gameVersion : null,
     };
     const search = useSWR([uuid, '/addons/plugins', JSON.stringify(params)], () => searchPlugins(uuid, params), {
@@ -515,7 +525,13 @@ export default () => {
         <ServerContentBlock title={'Plugins'}>
             <PageHeader
                 title={'Plugins'}
-                description={'Find plugins on SpigotMC, Modrinth and Polymart and install them in one click.'}
+                description={
+                    isProxy
+                        ? `Find ${
+                              platform === 'velocity' ? 'Velocity' : 'BungeeCord'
+                          } proxy plugins and install them in one click.`
+                        : 'Find plugins on SpigotMC, Modrinth and Polymart and install them in one click.'
+                }
                 actions={
                     <Segmented
                         id={'plugin-tabs'}
@@ -546,7 +562,9 @@ export default () => {
             ) : (
                 <>
                     <div className={'mb-5 flex flex-col gap-3 lg:flex-row lg:items-center'}>
-                        <Segmented id={'plugin-source'} value={source} onChange={setSource} options={SOURCES} />
+                        {sources.length > 1 && (
+                            <Segmented id={'plugin-source'} value={source} onChange={setSource} options={sources} />
+                        )}
                         <div className={'relative flex-1'}>
                             <SearchIcon
                                 className={
@@ -563,7 +581,7 @@ export default () => {
                                 className={'!pl-9'}
                             />
                         </div>
-                        {source === 'spigot' && (
+                        {source === 'spigot' && !isProxy && (
                             <Select
                                 value={category ?? ''}
                                 onChange={(e) =>

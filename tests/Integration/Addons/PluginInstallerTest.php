@@ -3,19 +3,16 @@
 namespace Pterodactyl\Tests\Integration\Addons;
 
 use Mockery\MockInterface;
-use Pterodactyl\Models\Egg;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Facades\Http;
-use GuzzleHttp\Exception\ClientException;
 use Pterodactyl\Addons\PluginInstaller\PluginSources;
 use Pterodactyl\Repositories\Wings\DaemonFileRepository;
 use Pterodactyl\Repositories\Wings\DaemonDownloadRepository;
-use Pterodactyl\Exceptions\Http\Connection\DaemonConnectionException;
 use Pterodactyl\Tests\Integration\Api\Client\ClientApiIntegrationTestCase;
 
 class PluginInstallerTest extends ClientApiIntegrationTestCase
 {
+    use UsesMinecraftServers;
+
     public function setUp(): void
     {
         parent::setUp();
@@ -32,6 +29,7 @@ class PluginInstallerTest extends ClientApiIntegrationTestCase
         Http::fake([
             'spiget.test/v2/resources/1001' => Http::response(['id' => 1001, 'name' => 'Luck Perms!', 'premium' => false, 'file' => ['type' => '.jar'], 'version' => ['id' => 777]]),
             'spiget.test/v2/resources/1002' => Http::response(['id' => 1002, 'name' => 'Paid', 'premium' => true, 'file' => ['type' => '.jar'], 'version' => ['id' => 1]]),
+            'spiget.test/v2/categories/*' => Http::response([]),
             'spiget.test/v2/resources*' => Http::response([
                 ['id' => 1001, 'name' => 'LuckPerms', 'tag' => 'Permissions', 'icon' => ['url' => 'data/icon.png'], 'rating' => ['average' => 4.88], 'downloads' => 5, 'premium' => false, 'file' => ['type' => '.jar'], 'testedVersions' => ['1.21'], 'version' => ['id' => 777], 'updateDate' => 1760000000],
                 ['id' => 1003, 'name' => 'External', 'premium' => false, 'external' => true, 'file' => ['type' => 'external'], 'version' => ['id' => 1]],
@@ -53,6 +51,7 @@ class PluginInstallerTest extends ClientApiIntegrationTestCase
     {
         $this->mock(DaemonFileRepository::class, function (MockInterface $mock) use ($installed) {
             $mock->shouldReceive('setServer')->andReturnSelf();
+            $mock->shouldReceive('getDirectory')->with('/')->andReturn([['name' => 'plugins', 'file' => false]]);
             $mock->shouldReceive('getDirectory')->with('/plugins')->andReturn(array_map(fn ($name) => ['name' => $name, 'file' => true, 'size' => 1, 'modified' => null], $installed));
             $mock->shouldReceive('deleteFiles')->byDefault();
         });
@@ -64,7 +63,7 @@ class PluginInstallerTest extends ClientApiIntegrationTestCase
 
     public function testSearchesEachSource(): void
     {
-        [$user, $server] = $this->generateTestAccount();
+        [$user, $server] = $this->paperAccount();
 
         $this->actingAs($user)->getJson($this->link($server, '/plugins?source=spigot'))
             ->assertOk()
@@ -92,7 +91,7 @@ class PluginInstallerTest extends ClientApiIntegrationTestCase
 
     public function testInstallsAndReplacesOlderCopies(): void
     {
-        [$user, $server] = $this->generateTestAccount();
+        [$user, $server] = $this->paperAccount();
 
         $this->wings(['Abc-MAbC123-v1.jar', 'Other.jar'], function (MockInterface $downloads) {
             $downloads->expects('download')->with('https://cdn.modrinth.test/abc-2.jar', '/plugins', 'Abc-MAbC123-v2.jar', 300);
@@ -108,7 +107,7 @@ class PluginInstallerTest extends ClientApiIntegrationTestCase
 
     public function testSpigotAndPolymartDownloads(): void
     {
-        [$user, $server] = $this->generateTestAccount();
+        [$user, $server] = $this->paperAccount();
 
         $this->wings([], function (MockInterface $downloads) {
             $downloads->expects('download')->with('https://cdn.spiget.test/files/1001.jar', '/plugins', 'LuckPerms-S1001-777.jar', 300);
@@ -123,16 +122,15 @@ class PluginInstallerTest extends ClientApiIntegrationTestCase
             ->assertJsonPath('errors.0.detail', 'This is a premium plugin. Buy it on SpigotMC and upload it through the file manager.');
     }
 
-    public function testCreatesThePluginsFolderWhenMissing(): void
+    public function testMissingPluginsFolderIsNotAnErrorAndIsCreatedOnInstall(): void
     {
-        [$user, $server] = $this->generateTestAccount();
+        [$user, $server] = $this->paperAccount();
 
         $this->mock(DaemonFileRepository::class, function (MockInterface $mock) {
             $mock->shouldReceive('setServer')->andReturnSelf();
-            $mock->shouldReceive('getDirectory')->once()->andThrow(new DaemonConnectionException(
-                new ClientException('missing', new Request('GET', '/'), new Response(404, [], '{}'))
-            ));
-            $mock->shouldReceive('getDirectory')->andReturn([['name' => 'LuckPerms-S1001-777.jar', 'file' => true]]);
+            // The folder is never listed while it does not exist.
+            $mock->shouldReceive('getDirectory')->with('/')->andReturn([['name' => 'server.jar', 'file' => true]]);
+            $mock->shouldNotReceive('getDirectory')->with('/plugins');
             $mock->expects('createDirectory')->with('plugins', '/');
         });
         $this->mock(DaemonDownloadRepository::class, function (MockInterface $mock) {
@@ -140,15 +138,38 @@ class PluginInstallerTest extends ClientApiIntegrationTestCase
             $mock->expects('download');
         });
 
-        $this->actingAs($user)->postJson($this->link($server, '/plugins/install'), ['source' => 'spigot', 'id' => '1001'])
+        $this->actingAs($user)->getJson($this->link($server, '/plugins/installed'))
             ->assertOk()
-            ->assertJsonPath('plugins.0.source', 'spigot')
-            ->assertJsonPath('plugins.0.id', '1001');
+            ->assertJsonPath('plugins', []);
+
+        $this->postJson($this->link($server, '/plugins/install'), ['source' => 'spigot', 'id' => '1001'])->assertOk();
+    }
+
+    public function testProxiesGetProxyPluginSources(): void
+    {
+        [$user, $server] = $this->accountWithEgg('Bungeecord');
+
+        $this->actingAs($user)->getJson($this->link($server, '/plugins?source=polymart'))->assertStatus(400);
+        $this->getJson($this->link($server, '/plugins?source=spigot'))->assertOk();
+        $this->getJson($this->link($server, '/plugins?source=modrinth'))->assertOk();
+
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'spiget.test/v2/categories/3/resources'));
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'modrinth.test/v2/search') && str_contains(urldecode($request->url()), 'categories:bungeecord') && !str_contains(urldecode($request->url()), 'categories:paper'));
+    }
+
+    public function testOnlyAvailableOnServersThatRunPlugins(): void
+    {
+        foreach (['Bungeecord' => 200, 'Paper' => 200, 'Forge Minecraft' => 404, 'Vanilla Minecraft' => 404, 'Sponge (SpongeVanilla)' => 404, 'Rust' => 404] as $egg => $status) {
+            [$user, $server] = $this->accountWithEgg($egg);
+            $this->wings([]);
+
+            $this->actingAs($user)->getJson($this->link($server, '/plugins/installed'))->assertStatus($status);
+        }
     }
 
     public function testUninstallOnlyTouchesJarsInThePluginsFolder(): void
     {
-        [$user, $server] = $this->generateTestAccount();
+        [$user, $server] = $this->paperAccount();
         $this->wings(['A.jar']);
         app(DaemonFileRepository::class)->expects('deleteFiles')->with('/plugins', ['A.jar']);
 
@@ -159,14 +180,13 @@ class PluginInstallerTest extends ClientApiIntegrationTestCase
 
     public function testPermissionsAndGameAreEnforced(): void
     {
-        [$user, $server] = $this->generateTestAccount(['file.read']);
+        [$user, $server] = $this->paperAccount(['file.read']);
 
         $this->actingAs($user)->getJson($this->link($server, '/plugins?source=spigot'))->assertOk();
         $this->postJson($this->link($server, '/plugins/install'), ['source' => 'spigot', 'id' => '1001'])->assertForbidden();
         $this->postJson($this->link($server, '/plugins/uninstall'), ['file' => 'A.jar'])->assertForbidden();
 
-        [$user, $server] = $this->generateTestAccount();
-        $server->forceFill(['egg_id' => Egg::query()->where('name', 'Rust')->firstOrFail()->id])->save();
+        [$user, $server] = $this->accountWithEgg('Rust');
         $this->actingAs($user)->getJson($this->link($server, '/plugins?source=spigot'))->assertNotFound();
     }
 

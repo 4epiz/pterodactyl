@@ -5,7 +5,7 @@ use Pterodactyl\Http\Middleware\Api\Client\Server\RequireGame;
 use Pterodactyl\Addons\PluginInstaller\Http\PluginInstallerController;
 
 // Endpoint: /api/client/servers/{server}/plugins
-Route::group(['prefix' => '/plugins', 'middleware' => RequireGame::class . ':minecraft'], function () {
+Route::group(['prefix' => '/plugins', 'middleware' => RequireGame::class . ':minecraft/bukkit,minecraft/bungee,minecraft/velocity,minecraft/unknown'], function () {
     Route::get('/', [PluginInstallerController::class, 'search']);
     Route::get('/installed', [PluginInstallerController::class, 'installed']);
     Route::get('/{source}/{id}/versions', [PluginInstallerController::class, 'versions'])
