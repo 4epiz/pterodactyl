@@ -80,6 +80,11 @@
                                 <i class="fa fa-wrench"></i> <span>Settings</span>
                             </a>
                         </li>
+                        <li class="{{ ! starts_with(Route::currentRouteName(), 'admin.theme') ?: 'active' }}">
+                            <a href="{{ route('admin.theme') }}">
+                                <i class="fa fa-paint-brush"></i> <span>Theme</span>
+                            </a>
+                        </li>
                         <li class="{{ ! starts_with(Route::currentRouteName(), 'admin.api') ?: 'active' }}">
                             <a href="{{ route('admin.api.index')}}">
                                 <i class="fa fa-gamepad"></i> <span>Application API</span>

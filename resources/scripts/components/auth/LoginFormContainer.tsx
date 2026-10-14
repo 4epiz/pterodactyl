@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useStoreState } from 'easy-peasy';
 import FlashMessageRender from '@/components/FlashMessageRender';
 import ThemeToggle from '@/components/theme/ThemeToggle';
+import { DEFAULT_LOGO, themeConfig } from '@/components/theme/config';
 import AuthShowcase from '@/components/theme/AuthShowcase';
 
 type Props = React.DetailedHTMLProps<React.FormHTMLAttributes<HTMLFormElement>, HTMLFormElement> & {
@@ -19,10 +20,14 @@ export default forwardRef<HTMLFormElement, Props>(({ title, subtitle, className:
             <div className={'flex min-h-screen flex-col px-6 py-6 sm:px-10'}>
                 <header className={'flex items-center justify-between'}>
                     <span className={'flex items-center gap-2.5'}>
-                        <img src={'/assets/svgs/pterodactyl.svg'} alt={''} className={'h-9 w-9'} />
+                        <img
+                            src={themeConfig().branding.logo_url || DEFAULT_LOGO}
+                            alt={''}
+                            className={'h-9 w-9 rounded-lg object-contain'}
+                        />
                         <span className={'text-[15px] font-semibold tracking-tight text-fg'}>{name}</span>
                     </span>
-                    <ThemeToggle />
+                    {themeConfig().appearance.allow_mode_change && <ThemeToggle />}
                 </header>
                 <main className={'flex flex-1 items-center justify-center py-12'}>
                     <motion.div
@@ -49,6 +54,9 @@ export default forwardRef<HTMLFormElement, Props>(({ title, subtitle, className:
                     >
                         Pterodactyl Software
                     </a>
+                    {themeConfig().branding.footer_text && (
+                        <span className={'ml-3 border-l border-line pl-3'}>{themeConfig().branding.footer_text}</span>
+                    )}
                 </footer>
             </div>
             <div className={'hidden p-3 lg:block'}>

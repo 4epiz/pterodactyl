@@ -9,6 +9,7 @@ import Avatar from '@/components/Avatar';
 import SpinnerOverlay from '@/components/elements/SpinnerOverlay';
 import ThemeSwitcher from '@/components/theme/ThemeSwitcher';
 import AccentPicker from '@/components/theme/AccentPicker';
+import { themeConfig } from '@/components/theme/config';
 
 const MenuLink = ({ icon: Icon, children, ...props }: { icon: typeof CogIcon } & React.ComponentProps<'a'>) => (
     <a
@@ -28,6 +29,7 @@ const MenuLink = ({ icon: Icon, children, ...props }: { icon: typeof CogIcon } &
  */
 export default ({ instance }: { instance: string }) => {
     const user = useStoreState((state: ApplicationStore) => state.user.data!);
+    const { appearance } = themeConfig();
     const [open, setOpen] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
@@ -75,12 +77,18 @@ export default ({ instance }: { instance: string }) => {
                             'absolute inset-x-0 bottom-full z-30 mb-2 origin-bottom rounded-xl border border-line bg-surface p-2 shadow-pop'
                         }
                     >
-                        <p className={'px-2.5 pt-1 pb-2 text-xs font-medium text-fg-subtle'}>Appearance</p>
-                        <ThemeSwitcher id={`${instance}-theme`} />
-                        <div className={'mt-3 px-1.5'}>
-                            <AccentPicker id={`${instance}-accent`} />
-                        </div>
-                        <div className={'my-2 border-t border-line'} />
+                        {(appearance.allow_mode_change || appearance.allow_accent_change) && (
+                            <>
+                                <p className={'px-2.5 pt-1 pb-2 text-xs font-medium text-fg-subtle'}>Appearance</p>
+                                {appearance.allow_mode_change && <ThemeSwitcher id={`${instance}-theme`} />}
+                                {appearance.allow_accent_change && (
+                                    <div className={'mt-3 px-1.5'}>
+                                        <AccentPicker id={`${instance}-accent`} />
+                                    </div>
+                                )}
+                                <div className={'my-2 border-t border-line'} />
+                            </>
+                        )}
                         <Link
                             to={'/account'}
                             className={

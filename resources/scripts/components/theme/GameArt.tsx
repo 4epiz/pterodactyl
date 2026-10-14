@@ -1,6 +1,7 @@
 import React, { memo, useMemo } from 'react';
 import classNames from 'classnames';
 import { customGameImages, GameKey } from '@/components/theme/games';
+import { themeConfig } from '@/components/theme/config';
 
 /*
  * Original, hand-built illustrations for each kind of game server. They only
@@ -534,7 +535,8 @@ interface Props {
 }
 
 const GameArt = ({ game, seed, align, className }: Props) => {
-    const custom = customGameImages[game];
+    // Images set in Admin > Theme take priority over the ones in games.ts.
+    const custom = themeConfig().game_images[game] || customGameImages[game];
     const id = useMemo(() => `art-${game}-${seed.replace(/[^a-z0-9]/gi, '').slice(0, 12)}`, [game, seed]);
     const content = useMemo(() => (custom ? null : scenes[game](id, random(seed))), [custom, game, id, seed]);
 
@@ -543,7 +545,7 @@ const GameArt = ({ game, seed, align, className }: Props) => {
             <div
                 aria-hidden
                 className={classNames('bg-cover bg-center', className)}
-                style={{ backgroundImage: `url(${custom})` }}
+                style={{ backgroundImage: `url("${custom.replace(/["\\\n]/g, '')}")` }}
             />
         );
     }

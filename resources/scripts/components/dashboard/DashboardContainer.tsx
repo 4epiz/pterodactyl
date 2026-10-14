@@ -13,6 +13,7 @@ import { ServerStats } from '@/api/server/getServerResourceUsage';
 import { ClipboardListIcon } from '@heroicons/react/outline';
 import StatTiles from '@/components/dashboard/StatTiles';
 import FeaturedServer from '@/components/dashboard/FeaturedServer';
+import { themeConfig } from '@/components/theme/config';
 import useSWR from 'swr';
 import { PaginatedResult } from '@/api/http';
 import Pagination from '@/components/elements/Pagination';
@@ -87,7 +88,7 @@ export default () => {
             <div className={'mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between'}>
                 <div>
                     <h1 className={'text-[2rem] font-semibold leading-tight tracking-[-0.03em] text-fg'}>
-                        {greeting()}, {username}
+                        {themeConfig().appearance.show_greeting ? `${greeting()}, ${username}` : 'Servers'}
                     </h1>
                     <p className={'mt-1.5 text-sm text-fg-muted'}>
                         {!servers
@@ -126,7 +127,9 @@ export default () => {
             </div>
 
             {servers && items.length > 0 && <StatTiles servers={items} stats={stats} />}
-            {featured && <FeaturedServer server={featured} stats={stats[featured.uuid]!} />}
+            {featured && themeConfig().appearance.show_featured && (
+                <FeaturedServer server={featured} stats={stats[featured.uuid]!} />
+            )}
 
             {!servers ? (
                 <Spinner centered size={'large'} />
