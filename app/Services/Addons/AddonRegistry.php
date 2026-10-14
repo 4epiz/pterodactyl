@@ -3,6 +3,7 @@
 namespace Pterodactyl\Services\Addons;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Discovers addons installed in app/Addons. Each addon is a folder with an
@@ -86,6 +87,35 @@ class AddonRegistry
             fn (array $manifest) => $manifest['admin_nav'] ?? null,
             self::all()
         )));
+    }
+
+    /**
+     * Addon migrations that have not been run yet, keyed by addon name. Used
+     * to warn administrators instead of failing with database errors.
+     *
+     * @return array<string, string[]>
+     */
+    public static function pendingMigrations(): array
+    {
+        $files = [];
+        foreach (self::all() as $manifest) {
+            $path = $manifest['migrations'] ?? null;
+            foreach ($path && is_dir($path) ? glob($path . '/*.php') ?: [] : [] as $file) {
+                $files[$manifest['name'] ?? basename(dirname($path))][] = basename($file, '.php');
+            }
+        }
+
+        if (empty($files)) {
+            return [];
+        }
+
+        try {
+            $ran = DB::table('migrations')->pluck('migration')->all();
+        } catch (\Throwable) {
+            return [];
+        }
+
+        return array_filter(array_map(fn (array $names) => array_values(array_diff($names, $ran)), $files));
     }
 
     /**

@@ -64,6 +64,8 @@ export interface Server {
     eggName?: string;
     nestId: number;
     eggId: number;
+    // Game detected by the panel (see app/Services/Servers/GameDetector.php).
+    game?: string;
     variables: ServerEggVariable[];
     allocations: Allocation[];
 }
@@ -92,6 +94,7 @@ export const rawDataToServerObject = ({ attributes: data }: FractalResponseData)
     skipScripts: data.skip_scripts,
     nestId: data.nest_id,
     eggId: data.egg_id,
+    game: data.game,
     eggName: (data.relationships?.egg as FractalResponseData | undefined)?.attributes?.name,
     variables: ((data.relationships?.variables as FractalResponseList | undefined)?.data || []).map(
         rawDataToServerEggVariable

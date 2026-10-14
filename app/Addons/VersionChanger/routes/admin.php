@@ -1,10 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Pterodactyl\Addons\VersionChanger\Http\EnsureInstalled;
 use Pterodactyl\Addons\VersionChanger\Http\AdminVersionController;
 
 // Endpoint: /admin/addons/versions
-Route::group(['prefix' => '/addons/versions'], function () {
+Route::group(['prefix' => '/addons/versions', 'middleware' => EnsureInstalled::class], function () {
     Route::get('/', [AdminVersionController::class, 'index'])->name('admin.addons.versions');
     Route::post('/', [AdminVersionController::class, 'storeGroup']);
 

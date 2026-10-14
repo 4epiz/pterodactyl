@@ -172,4 +172,39 @@ class VersionChangerTest extends ClientApiIntegrationTestCase
         $this->delete(route('admin.addons.versions.view', $group->id))->assertRedirect(route('admin.addons.versions'));
         $this->assertSame(0, VersionGroup::query()->count());
     }
+
+    public function testOnlyAvailableForMinecraftServers(): void
+    {
+        [$user, $server] = $this->generateTestAccount();
+        $server->forceFill(['egg_id' => Egg::query()->where('name', 'Rust')->firstOrFail()->id])->save();
+
+        $this->actingAs($user)->getJson($this->link($server, '/versions'))->assertNotFound();
+    }
+
+    public function testClientApiExplainsWhenTheTablesAreMissing(): void
+    {
+        [$user, $server] = $this->generateTestAccount();
+        $this->pretendNotInstalled();
+
+        $this->actingAs($user)->getJson($this->link($server, '/versions'))
+            ->assertStatus(400)
+            ->assertJsonPath('errors.0.detail', 'Versions are not set up on this panel yet. Ask your host to finish installing the version changer.');
+    }
+
+    public function testAdminPageExplainsWhenTheTablesAreMissing(): void
+    {
+        $this->pretendNotInstalled();
+
+        $this->actingAs(User::factory()->create(['root_admin' => true]))
+            ->get(route('admin.addons.versions'))
+            ->assertStatus(503)
+            ->assertSee('php artisan migrate --force');
+    }
+
+    private function pretendNotInstalled(): void
+    {
+        $flag = new \ReflectionProperty(\Pterodactyl\Addons\VersionChanger\Http\EnsureInstalled::class, 'installed');
+        $flag->setValue(null, false);
+        $this->beforeApplicationDestroyed(fn () => $flag->setValue(null, null));
+    }
 }

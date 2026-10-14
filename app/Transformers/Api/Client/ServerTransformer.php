@@ -12,6 +12,7 @@ use Illuminate\Container\Container;
 use Pterodactyl\Models\EggVariable;
 use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\NullResource;
+use Pterodactyl\Services\Servers\GameDetector;
 use Pterodactyl\Services\Servers\StartupCommandService;
 
 class ServerTransformer extends BaseClientTransformer
@@ -82,6 +83,9 @@ class ServerTransformer extends BaseClientTransformer
             // Used by addons to show pages for specific nests or eggs only.
             'nest_id' => $server->nest_id,
             'egg_id' => $server->egg_id,
+            // The game the server runs (e.g. "minecraft"), used to show game
+            // specific pages. Same detection as the RequireGame middleware.
+            'game' => app(GameDetector::class)->detect($server),
             'skip_scripts' => $server->skip_scripts,
         ];
     }

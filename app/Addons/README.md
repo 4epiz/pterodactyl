@@ -5,6 +5,15 @@ and `resources/scripts/addons/index.ts`). They are not part of the Graphite them
 package: `theme-package/build.sh` leaves `app/Addons`, `config/addons`,
 `resources/views/addons`, `resources/scripts/addons/*/` and their tests out.
 
+Installed addons are listed under **Admin > Addons**. In the client area,
+addon pages appear in their own **Addons** section of a server's sidebar, and
+only on servers they apply to: all three addons here are for Minecraft servers.
+The game is detected from the egg by the panel (`GameDetector`), and the same
+check is applied to the addon's API routes.
+
+If an addon's database tables are missing, the admin area shows a warning and
+the addon's pages explain what to do instead of failing.
+
 After adding or updating an addon, run:
 
 ```bash
@@ -24,7 +33,7 @@ daemon** (the original needed a modified Wings build).
     name to save as (usually `server.jar`). Archives can be extracted.
   - *Switch egg*: users can move their server to any egg in the group; the
     server is reinstalled with that egg's install script.
-- **Client > Versions** (`/server/<id>/versions`): users pick a version, and
+- **Client > Versions** (`/server/<id>/versions`, Minecraft servers only): users pick a version, and
   can choose to delete all files first. The server must be stopped.
 - Installing a download removes the `.jar` files in the server's top folder,
   then asks Wings to download the new one (`/files/pull`, waits up to 10

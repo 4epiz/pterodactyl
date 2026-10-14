@@ -47,7 +47,15 @@ const rules: [GameKey, RegExp][] = gameRules.rules.map(({ game, pattern }) => [g
 
 const match = (text: string): GameKey | undefined => rules.find(([, pattern]) => pattern.test(text))?.[0];
 
-export const detectGame = (server: Pick<Server, 'eggName' | 'dockerImage' | 'invocation' | 'variables'>): GameKey => {
+const gameKeys = Object.keys(gameLabels) as GameKey[];
+
+export const detectGame = (
+    server: Pick<Server, 'eggName' | 'dockerImage' | 'invocation' | 'variables'> & { game?: string }
+): GameKey => {
+    // The panel works the game out with the same rules and sends it along;
+    // use that so pages shown here always match what the API allows.
+    if (server.game && gameKeys.includes(server.game as GameKey)) return server.game as GameKey;
+
     // The egg name is the most reliable signal, so it is checked on its own
     // first. Docker image, startup command and variable names are a fallback
     // for panels where the egg name is not descriptive.

@@ -7,6 +7,10 @@
  */
 return [
     'name' => 'Version Changer',
+    'description' => 'Lets users switch their Minecraft server to versions you set up, by downloading a server jar or switching egg.',
+    'version' => '1.5',
+    // Client area pages, for the admin overview (the pages themselves are in resources/scripts/addons).
+    'client_pages' => ['Versions'],
     'permissions' => [
         'versions' => [
             'description' => 'Permissions that control access to the version changer.',
