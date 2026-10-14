@@ -66,6 +66,9 @@ export interface Server {
     eggId: number;
     // Game detected by the panel (see app/Services/Servers/GameDetector.php).
     game?: string;
+    // Minecraft platform (bukkit, bungee, velocity, sponge, modded, bedrock,
+    // vanilla or unknown), null for other games.
+    platform?: string | null;
     variables: ServerEggVariable[];
     allocations: Allocation[];
 }
@@ -95,6 +98,7 @@ export const rawDataToServerObject = ({ attributes: data }: FractalResponseData)
     nestId: data.nest_id,
     eggId: data.egg_id,
     game: data.game,
+    platform: data.platform,
     eggName: (data.relationships?.egg as FractalResponseData | undefined)?.attributes?.name,
     variables: ((data.relationships?.variables as FractalResponseList | undefined)?.data || []).map(
         rawDataToServerEggVariable

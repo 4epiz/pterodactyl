@@ -24,7 +24,7 @@ const ScheduleEditContainer = lazy(() => import('@/components/server/schedules/S
 
 import addons from '@/addons';
 import { Server } from '@/api/server/getServer';
-import { detectGame, GameKey } from '@/components/theme/games';
+import { detectGame, detectPlatform, GameKey, MinecraftPlatform } from '@/components/theme/games';
 
 export interface RouteDefinition {
     path: string;
@@ -41,6 +41,8 @@ export interface ServerRouteDefinition extends RouteDefinition {
     // running one of these games (see components/theme/games.ts), or in one of
     // these nests or eggs.
     games?: GameKey[];
+    // For Minecraft pages: only show on these platforms (see detectPlatform).
+    platforms?: MinecraftPlatform[];
     nestId?: number;
     eggId?: number;
     nestIds?: number[];
@@ -167,11 +169,19 @@ routes.server.push(...addons.server.map((route) => ({ ...route, addon: true })))
  */
 export const isRouteAvailable = (
     route: ServerRouteDefinition,
-    server: Pick<Server, 'nestId' | 'eggId' | 'eggName' | 'dockerImage' | 'invocation' | 'variables' | 'game'>
+    server: Pick<
+        Server,
+        'nestId' | 'eggId' | 'eggName' | 'dockerImage' | 'invocation' | 'variables' | 'game' | 'platform'
+    >
 ): boolean => {
     const limits: boolean[] = [];
 
-    if (route.games) limits.push(route.games.includes(detectGame(server)));
+    if (route.games) {
+        limits.push(
+            route.games.includes(detectGame(server)) &&
+                (!route.platforms || route.platforms.includes(detectPlatform(server) as MinecraftPlatform))
+        );
+    }
     if (route.nestId !== undefined || route.nestIds) {
         limits.push(route.nestId === server.nestId || !!route.nestIds?.includes(server.nestId));
     }

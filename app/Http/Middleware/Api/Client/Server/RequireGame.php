@@ -8,9 +8,10 @@ use Pterodactyl\Services\Servers\GameDetector;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
- * Limits a server route to servers running one of the given games, e.g.
- * RequireGame::class . ':minecraft'. Games are detected the same way as in the
- * client area, see GameDetector.
+ * Limits a server route to servers running one of the given games, and
+ * optionally a Minecraft platform: RequireGame::class . ':minecraft' or
+ * RequireGame::class . ':minecraft/bukkit,minecraft/unknown'. Games are
+ * detected the same way as in the client area, see GameDetector.
  */
 class RequireGame
 {
@@ -22,7 +23,7 @@ class RequireGame
     {
         $server = $request->route()->parameter('server');
 
-        if (!$server instanceof Server || !$this->detector->is($server, ...$games)) {
+        if (!$server instanceof Server || !$this->detector->matches($server, ...$games)) {
             throw new NotFoundHttpException('This feature is not available for this server.');
         }
 

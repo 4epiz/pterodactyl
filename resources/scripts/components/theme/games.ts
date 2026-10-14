@@ -90,3 +90,45 @@ export const detectGame = (
 
     return match(rest) ?? 'generic';
 };
+
+export type MinecraftPlatform =
+    | 'bukkit'
+    | 'bungee'
+    | 'velocity'
+    | 'sponge'
+    | 'modded'
+    | 'bedrock'
+    | 'vanilla'
+    | 'unknown';
+
+const platformRules: [MinecraftPlatform, RegExp][] = gameRules.minecraft_platforms.map(({ platform, pattern }) => [
+    platform as MinecraftPlatform,
+    new RegExp(pattern),
+]);
+
+/**
+ * Which kind of Minecraft server this is, or null for other games. Proxies
+ * (bungee, velocity) have no server.properties and need proxy plugins;
+ * modded, vanilla, Sponge and Bedrock servers cannot use Bukkit plugins.
+ */
+export const detectPlatform = (
+    server: Pick<Server, 'eggName' | 'dockerImage' | 'invocation' | 'variables'> & {
+        game?: string;
+        platform?: string | null;
+    }
+): MinecraftPlatform | null => {
+    // Prefer what the panel worked out, so pages match what the API allows.
+    if (server.game) return server.game === 'minecraft' ? ((server.platform || 'unknown') as MinecraftPlatform) : null;
+    if (detectGame(server) !== 'minecraft') return null;
+
+    const find = (text: string) => platformRules.find(([, pattern]) => pattern.test(text))?.[0];
+    const rest = [
+        server.dockerImage || '',
+        server.invocation || '',
+        ...(server.variables || []).map((v) => v.envVariable),
+    ]
+        .join(' ')
+        .toLowerCase();
+
+    return find((server.eggName || '').toLowerCase()) ?? find(rest) ?? 'unknown';
+};

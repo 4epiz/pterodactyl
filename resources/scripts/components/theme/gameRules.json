@@ -11,7 +11,7 @@
         },
         {
             "game": "minecraft",
-            "pattern": "minecraft|paper|purpur|spigot|bukkit|forge|fabric|quilt|vanilla|bungee|velocity|waterfall|sponge|bedrock|nukkit|pocketmine|mohist|folia|server_jarfile"
+            "pattern": "minecraft|paper|purpur|spigot|bukkit|forge|fabric|quilt|vanilla|bungee|velocity|waterfall|sponge|bedrock|nukkit|pocketmine|mohist|folia|neoforge|arclight|magma|catserver|ketting|pufferfish|travertine|flamecord|server_jarfile"
         },
         {
             "game": "terraria",
@@ -48,6 +48,37 @@
         {
             "game": "code",
             "pattern": "discord|node|nodejs|python|bun\\b|deno|golang|\\bjava\\b|dotnet|\\bbot\\b"
+        }
+    ],
+    "_platforms_comment": "Minecraft platforms, checked in order (first match wins) against the egg name, then the docker image, startup command and variable names. Decides which Minecraft addons a server gets: proxies have no server.properties and need proxy plugins; modded, vanilla, Sponge and Bedrock servers cannot use Bukkit plugins. A Minecraft server matching none of these is 'unknown' and gets every Minecraft addon.",
+    "minecraft_platforms": [
+        {
+            "platform": "velocity",
+            "pattern": "velocity"
+        },
+        {
+            "platform": "bungee",
+            "pattern": "bungee|waterfall|travertine|flamecord|lightfall"
+        },
+        {
+            "platform": "bukkit",
+            "pattern": "mohist|arclight|magma|catserver|ketting|youer|paper|purpur|spigot|bukkit|folia|pufferfish|tuinity|airplane|\\bleaf\\b|\\bgale\\b"
+        },
+        {
+            "platform": "sponge",
+            "pattern": "sponge"
+        },
+        {
+            "platform": "modded",
+            "pattern": "neoforge|forge|fabric|quilt"
+        },
+        {
+            "platform": "bedrock",
+            "pattern": "bedrock|pocketmine|nukkit|\\bbds\\b"
+        },
+        {
+            "platform": "vanilla",
+            "pattern": "vanilla"
         }
     ]
 }
