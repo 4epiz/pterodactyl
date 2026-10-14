@@ -86,6 +86,9 @@ class ServerTransformer extends BaseClientTransformer
             // The game the server runs (e.g. "minecraft"), used to show game
             // specific pages. Same detection as the RequireGame middleware.
             'game' => app(GameDetector::class)->detect($server),
+            // For Minecraft: bukkit, bungee, velocity, sponge, modded, bedrock,
+            // vanilla or unknown; decides which Minecraft addons are shown.
+            'platform' => app(GameDetector::class)->platform($server),
             'skip_scripts' => $server->skip_scripts,
         ];
     }

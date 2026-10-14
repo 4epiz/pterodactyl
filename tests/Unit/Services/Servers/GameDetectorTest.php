@@ -39,4 +39,36 @@ class GameDetectorTest extends TestCase
             'unknown' => ['Something', 'example/image', [], 'generic'],
         ];
     }
+
+    #[DataProvider('platforms')]
+    public function testDetectsTheMinecraftPlatform(string $eggName, ?string $expected): void
+    {
+        $egg = new Egg(['name' => $eggName]);
+        $egg->setRelation('variables', collect());
+
+        $server = new Server(['image' => 'ghcr.io/pterodactyl/yolks:java_21', 'startup' => 'java -jar server.jar']);
+        $server->setRelation('egg', $egg);
+
+        $this->assertSame($expected, (new GameDetector())->platform($server));
+    }
+
+    public static function platforms(): array
+    {
+        return [
+            ['Paper', 'bukkit'],
+            ['Purpur', 'bukkit'],
+            ['Mohist', 'bukkit'],
+            ['Bungeecord', 'bungee'],
+            ['Waterfall', 'bungee'],
+            ['Velocity', 'velocity'],
+            ['Forge Minecraft', 'modded'],
+            ['NeoForge', 'modded'],
+            ['Fabric', 'modded'],
+            ['Sponge (SpongeVanilla)', 'sponge'],
+            ['Vanilla Minecraft', 'vanilla'],
+            ['Vanilla Bedrock', 'bedrock'],
+            ['Minecraft Java', 'unknown'],
+            ['Rust', null],
+        ];
+    }
 }

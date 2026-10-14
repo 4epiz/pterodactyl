@@ -10,6 +10,8 @@ export default {
             name: 'Properties',
             permission: 'properties.*',
             games: ['minecraft'],
+            // Proxies (BungeeCord, Waterfall, Velocity) have no server.properties.
+            platforms: ['bukkit', 'sponge', 'modded', 'bedrock', 'vanilla', 'unknown'],
             component: PropertiesContainer,
         },
     ],

@@ -15,6 +15,8 @@ use Pterodactyl\Tests\Integration\Api\Client\ClientApiIntegrationTestCase;
 
 class VersionChangerTest extends ClientApiIntegrationTestCase
 {
+    use UsesMinecraftServers;
+
     public function setUp(): void
     {
         parent::setUp();
@@ -55,7 +57,7 @@ class VersionChangerTest extends ClientApiIntegrationTestCase
 
     public function testListsGroupsForTheServersEgg(): void
     {
-        [$user, $server] = $this->generateTestAccount();
+        [$user, $server] = $this->paperAccount();
         $group = $this->downloadGroup($server);
         VersionGroup::query()->create(['name' => 'Other egg', 'type' => 'download', 'eggs' => [999999]]);
 
@@ -69,7 +71,7 @@ class VersionChangerTest extends ClientApiIntegrationTestCase
 
     public function testDownloadReplacesJarsAndRemembersTheVersion(): void
     {
-        [$user, $server] = $this->generateTestAccount();
+        [$user, $server] = $this->paperAccount();
         $group = $this->downloadGroup($server);
 
         $this->wings('offline', function (MockInterface $files) {
@@ -95,7 +97,7 @@ class VersionChangerTest extends ClientApiIntegrationTestCase
 
     public function testRefusesWhileTheServerIsRunning(): void
     {
-        [$user, $server] = $this->generateTestAccount();
+        [$user, $server] = $this->paperAccount();
         $group = $this->downloadGroup($server);
         $this->wings('running');
 
@@ -107,7 +109,7 @@ class VersionChangerTest extends ClientApiIntegrationTestCase
 
     public function testEggSwitchChangesTheEggAndReinstalls(): void
     {
-        [$user, $server] = $this->generateTestAccount();
+        [$user, $server] = $this->paperAccount();
         $vanilla = Egg::query()->where('name', 'Vanilla Minecraft')->firstOrFail();
         $group = VersionGroup::query()->create(['name' => 'Type', 'type' => 'egg', 'eggs' => [$server->egg_id, $vanilla->id]]);
         $this->wings('offline');
@@ -125,7 +127,7 @@ class VersionChangerTest extends ClientApiIntegrationTestCase
 
     public function testCannotUseVersionsFromOtherGroupsOrEggs(): void
     {
-        [$user, $server] = $this->generateTestAccount();
+        [$user, $server] = $this->paperAccount();
         $group = VersionGroup::query()->create(['name' => 'Other', 'type' => 'download', 'eggs' => [999999]]);
         $version = $group->versions()->create(['name' => 'x', 'download_url' => 'https://example.com/x.jar', 'filename' => 'server.jar']);
         $eggGroup = VersionGroup::query()->create(['name' => 'Type', 'type' => 'egg', 'eggs' => [$server->egg_id]]);
@@ -140,7 +142,7 @@ class VersionChangerTest extends ClientApiIntegrationTestCase
 
     public function testPermissionsAreEnforced(): void
     {
-        [$user, $server] = $this->generateTestAccount(['versions.read']);
+        [$user, $server] = $this->paperAccount(['versions.read']);
         $group = $this->downloadGroup($server);
 
         $this->actingAs($user)->getJson($this->link($server, '/versions'))->assertOk();
@@ -175,15 +177,17 @@ class VersionChangerTest extends ClientApiIntegrationTestCase
 
     public function testOnlyAvailableForMinecraftServers(): void
     {
-        [$user, $server] = $this->generateTestAccount();
-        $server->forceFill(['egg_id' => Egg::query()->where('name', 'Rust')->firstOrFail()->id])->save();
-
+        [$user, $server] = $this->accountWithEgg('Rust');
         $this->actingAs($user)->getJson($this->link($server, '/versions'))->assertNotFound();
+
+        // Every kind of Minecraft server, proxies included, can change version.
+        [$user, $server] = $this->accountWithEgg('Bungeecord');
+        $this->actingAs($user)->getJson($this->link($server, '/versions'))->assertOk();
     }
 
     public function testClientApiExplainsWhenTheTablesAreMissing(): void
     {
-        [$user, $server] = $this->generateTestAccount();
+        [$user, $server] = $this->paperAccount();
         $this->pretendNotInstalled();
 
         $this->actingAs($user)->getJson($this->link($server, '/versions'))

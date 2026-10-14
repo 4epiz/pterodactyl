@@ -7,9 +7,26 @@ package: `theme-package/build.sh` leaves `app/Addons`, `config/addons`,
 
 Installed addons are listed under **Admin > Addons**. In the client area,
 addon pages appear in their own **Addons** section of a server's sidebar, and
-only on servers they apply to: all three addons here are for Minecraft servers.
-The game is detected from the egg by the panel (`GameDetector`), and the same
-check is applied to the addon's API routes.
+only on servers they apply to. The panel detects the game and, for Minecraft,
+the platform from the egg (`GameDetector`, rules in
+`resources/scripts/components/theme/gameRules.json`); the same check guards the
+addon's API routes:
+
+| Server | Versions | Properties | Plugins |
+|---|---|---|---|
+| Paper, Purpur, Spigot, Folia, Mohist, Arclight... | yes | yes | SpigotMC, Modrinth, Polymart |
+| BungeeCord, Waterfall | yes | no (proxies have no server.properties) | SpigotMC proxy plugins, Modrinth |
+| Velocity | yes | no | Modrinth (Velocity plugins) |
+| Forge, NeoForge, Fabric, Quilt, Vanilla, Sponge, Bedrock | yes | yes | no (cannot run Bukkit plugins) |
+| Minecraft egg with an unrecognised name | yes | yes | yes |
+| Other games | no | no | no |
+
+To have a custom egg recognised, include the platform in its name (for example
+"Paper 1.21" or "Velocity Proxy"), or add a pattern to `gameRules.json`.
+
+A server without a `server.properties` (never started) or without a `plugins`
+folder is handled normally: the Properties page says to start the server once,
+and the plugins folder is created on the first install.
 
 If an addon's database tables are missing, the admin area shows a warning and
 the addon's pages explain what to do instead of failing.

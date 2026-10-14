@@ -9,7 +9,6 @@ use Pterodactyl\Addons\ServerProperties\PropertiesFile;
 use Pterodactyl\Repositories\Wings\DaemonFileRepository;
 use Pterodactyl\Http\Controllers\Api\Client\ClientApiController;
 use Pterodactyl\Exceptions\Http\Server\FileSizeTooLargeException;
-use Pterodactyl\Exceptions\Http\Connection\DaemonConnectionException;
 use Pterodactyl\Addons\ServerProperties\Http\Requests\ViewPropertiesRequest;
 use Pterodactyl\Addons\ServerProperties\Http\Requests\UpdatePropertiesRequest;
 
@@ -26,11 +25,14 @@ class ServerPropertiesController extends ClientApiController
     }
 
     /**
-     * Returns the properties in the server's server.properties file.
+     * Returns the properties in the server's server.properties file. A server
+     * that has not been started yet has no file; that is not an error.
      */
     public function index(ViewPropertiesRequest $request, Server $server): array
     {
-        return ['properties' => $this->load($server)->properties()];
+        $file = $this->load($server);
+
+        return ['exists' => !is_null($file), 'properties' => $file?->properties() ?? []];
     }
 
     /**
@@ -39,6 +41,10 @@ class ServerPropertiesController extends ClientApiController
     public function update(UpdatePropertiesRequest $request, Server $server): array
     {
         $file = $this->load($server);
+        if (is_null($file)) {
+            throw new DisplayException('This server has no server.properties file yet. Start the server once to create it.', null, DisplayException::LEVEL_WARNING);
+        }
+
         $changed = $file->update($request->validated()['values']);
 
         if (count($changed) > 0) {
@@ -47,19 +53,27 @@ class ServerPropertiesController extends ClientApiController
             Activity::event('server:properties.update')->property('keys', $changed)->log();
         }
 
-        return ['properties' => $file->properties(), 'changed' => $changed];
+        return ['exists' => true, 'properties' => $file->properties(), 'changed' => $changed];
     }
 
-    private function load(Server $server): PropertiesFile
+    /**
+     * Reads server.properties, or returns null when the server does not have
+     * one. Checks the folder listing first rather than relying on the error
+     * Wings returns for a missing file, which differs between Wings versions.
+     */
+    private function load(Server $server): ?PropertiesFile
     {
-        try {
-            return new PropertiesFile($this->files->setServer($server)->getContent(self::FILE, self::MAX_SIZE));
-        } catch (DaemonConnectionException $exception) {
-            if ($exception->getStatusCode() === 404) {
-                throw new DisplayException('This server has no server.properties file yet. Start the server once to create it.', null, DisplayException::LEVEL_WARNING);
-            }
+        $files = $this->files->setServer($server);
 
-            throw $exception;
+        $exists = collect($files->getDirectory('/'))
+            ->contains(fn (array $file) => $file['name'] === self::FILE && ($file['file'] ?? true));
+
+        if (!$exists) {
+            return null;
+        }
+
+        try {
+            return new PropertiesFile($files->getContent(self::FILE, self::MAX_SIZE));
         } catch (FileSizeTooLargeException) {
             throw new DisplayException('The server.properties file is too large to edit here.');
         }
