@@ -9,6 +9,7 @@ export default {
             path: '/versions',
             name: 'Versions',
             permission: 'versions.*',
+            games: ['minecraft'],
             component: VersionsContainer,
         },
     ],
